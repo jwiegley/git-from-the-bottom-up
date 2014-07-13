@@ -47,7 +47,7 @@ This is what the repository looks like afterward:
 
 If we checked out the `Z` branch now, it would contain the contents of the previous `Z` (now referenceable as `Z^`), merged with the contents of `D`. (Though note: a real merge operation would have required resolving any conflicts between the states of `D` and `Z`).
 
-Although the new `Z` now contains the changes from `D`, it also includes a new commit to rep- resent the merging of `Z` with `D`: the commit now shown as `Z’`. This commit doesn’t add anything new, but represents the work done to bring `D` and `Z` together. In a sense it’s a “meta-commit”, be- cause its contents are related to work done solely in the repository, and not to new work done in the working tree.
+Although the new `Z` now contains the changes from `D`, it also includes a new commit to represent the merging of `Z` with `D`: the commit now shown as `Z’`. This commit doesn’t add anything new, but represents the work done to bring `D` and `Z` together. In a sense it’s a “meta-commit”, because its contents are related to work done solely in the repository, and not to new work done in the working tree.
 ￼￼￼￼￼￼￼￼￼￼￼￼￼￼￼￼￼￼￼
 There is a way, however, to transplant the `Z` branch straight onto `D`, effectively moving it forward in time: by using the powerful rebase command. Here’s the graph we’re aiming for:
 

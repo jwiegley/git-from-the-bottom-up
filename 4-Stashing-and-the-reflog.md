@@ -1,8 +1,8 @@
 # Stashing and the reflog
 
-Until now we’ve described two ways in which blobs find their way into Git: first they’re created in your index, both without a parent tree and without an owning commit; and then they’re committed into the repository, where they live as leaves hanging off of the tree held by that com- mit. But there are two other ways a blob can dwell in your repository.
+Until now we’ve described two ways in which blobs find their way into Git: first they’re created in your index, both without a parent tree and without an owning commit; and then they’re committed into the repository, where they live as leaves hanging off of the tree held by that commit. But there are two other ways a blob can dwell in your repository.
 
-The first of these is the `Git reflog`, a kind of meta-repository that records — in the form of commits — every change you make to your repository. This means that when you create a tree from your index and store it under a commit (all of which is done by `commit`), you are also inad- vertently adding that commit to the reflog, which can be viewed using the following command:
+The first of these is the `Git reflog`, a kind of meta-repository that records — in the form of commits — every change you make to your repository. This means that when you create a tree from your index and store it under a commit (all of which is done by `commit`), you are also inadvertently adding that commit to the reflog, which can be viewed using the following command:
 
 ```bash
 $ git reflog
@@ -48,7 +48,7 @@ $ git show stash@{32}  # show me what I was working on
 $ git checkout -b temp stash@{32}  # let’s see that old working tree!
 ```
 
-This last command is particularly powerful: behold, I’m now playing around in an uncom- mitted working tree from over a month ago. I never even added those files to the index; I just used the simple expedient of calling `stash` before logging out each day (provided you actually had changes in your working tree to stash), and used `stash apply` when I logged back in.
+This last command is particularly powerful: behold, I’m now playing around in an uncommitted working tree from over a month ago. I never even added those files to the index; I just used the simple expedient of calling `stash` before logging out each day (provided you actually had changes in your working tree to stash), and used `stash apply` when I logged back in.
 
 If you ever want to clean up your stash list — say to keep only the last 30 days of activity — don’t use `stash clear`; use the `reflog expire` command instead:
 
