@@ -9,7 +9,7 @@ $ git ls-tree HEAD
 100644 blob af5626b4a114abcb82d63db7c8082c3c4756e51b greeting
 ```
 
-There it is! This first commit added my greeting file to the repository. This commit con- tains one Git tree, which has a single leaf: the greeting content’s blob.
+There it is! This first commit added my greeting file to the repository. This commit contains one Git tree, which has a single leaf: the greeting content’s blob.
 
 Although I can look at the tree containing my blob by passing HEAD to `ls-tree`, I haven’t yet seen the underlying tree object referenced by that commit. Here are a few other commands to highlight that difference and thus discover my tree:
 
