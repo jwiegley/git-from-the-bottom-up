@@ -1,4 +1,4 @@
-# Taking the index farther
+# Taking the index further
 
 Let’s see, the index... With it you can pre-stage a set of changes, thus iteratively building up a patch before committing it to the repository. Now, where have I heard that concept before...
 
