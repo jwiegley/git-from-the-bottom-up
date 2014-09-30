@@ -8,7 +8,7 @@ $ git reset --soft HEAD^     # backup HEAD to its parent,
 $ git update-ref HEAD HEAD^  # does the same thing, albeit manually
 ```
 
-In both cases, your working tree now sits on top of an older HEAD, so you should see more changes if you run `status`. It’s not that your file have been changed, simply that they are now being compared against an older version. It can give you a chance to create a new commit in place of the old one. In fact, if the commit you want to change is the most recent one checked in, you can use `commit --amend` to add your latest changes to the last commit as if you’d done them together.
+In both cases, your working tree now sits on top of an older HEAD, so you should see more changes if you run `status`. It’s not that your files have been changed, simply that they are now being compared against an older version. It can give you a chance to create a new commit in place of the old one. In fact, if the commit you want to change is the most recent one checked in, you can use `commit --amend` to add your latest changes to the last commit as if you’d done them together.
 
 But please note: if you have downstream consumers, and they’ve done work on top of your previous head — the one you threw away — changing HEAD like this will force a merge to happen automatically after their next pull. Below is what your tree would look like after a soft reset and a new commit:
 
