@@ -21,7 +21,7 @@ The power of this command is hard to appreciate at first, but it grants you virt
 
 I recommend reading the man page for `rebase` at this point, as it contains several good examples how the true power of this beast may be unleashed. To give you one last taste of how potent a tool this is, consider the following scenario and what you’d do if one day you wanted to migrate the secondary branch `L` to become the new head of `Z`:
 
-![Rebasing Multiple Branches Part 1](images/rebasing-branches-1.png)
+![Rebasing Multiple Branches Part 1](../images/rebasing-branches-1.png)
 
 The picture reads: we have our main-line of development, `D`, which three commits ago was branched to begin speculative development on `Z`. At some point in the middle of all this, back when `C` and `X` were the heads of their respective branches, we decided to begin another speculation which finally produced `L`. Now we’ve found that `L`’s code is good, but not quite good enough to merge back over to the main-line, so we decide to move those changes over to the development branch `Z`, making it look as though we’d done them all on one branch after all. Oh, and while we’re at it, we want to edit `J` real quick to change the copyright date, since we forgot it was 2008 when we made the change! Here are the commands needed to untangle this knot:
 
@@ -32,6 +32,6 @@ $ git rebase -i Z
 
 After resolving whatever conflicts emerge, I now have this repository:
 
-![Rebasing Multiple Branches Part 1](images/rebasing-branches-2.png)
+![Rebasing Multiple Branches Part 1](../images/rebasing-branches-2.png)
 
 As you can see, when it comes to local development, rebasing gives you unlimited control over how your commits appear in the repository.

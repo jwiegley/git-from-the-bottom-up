@@ -2,7 +2,7 @@
 
 One of Git’s most capable commands for manipulating commits is the innocently-named rebase command. Basically, every branch you work from has one or more “base commits”: the commits that branch was born from. Take the following typical scenario, for example. Note that the arrows point back in time because each commit references its parent(s), but not its children. Therefore, the D and Z commits represent the heads of their respective branches:
 
-![Branching](images/branching.png)
+![Branching](../images/branching.png)
 
 In this case, running branch would show two “heads”: `D` and `Z`, with the common parent of both branches being A. The output of show-branch shows us just this information:
 
@@ -43,7 +43,7 @@ $ git merge D # merge commits B, C and D into Z
 
 This is what the repository looks like afterward:
 
-![Branch Merge](images/branch-merge.png)
+![Branch Merge](../images/branch-merge.png)
 
 If we checked out the `Z` branch now, it would contain the contents of the previous `Z` (now referenceable as `Z^`), merged with the contents of `D`. (Though note: a real merge operation would have required resolving any conflicts between the states of `D` and `Z`).
 
@@ -51,7 +51,7 @@ Although the new `Z` now contains the changes from `D`, it also includes a new c
 
 There is a way, however, to transplant the `Z` branch straight onto `D`, effectively moving it forward in time: by using the powerful rebase command. Here’s the graph we’re aiming for:
 
-![Rebase](images/rebase.png)
+![Rebase](../images/rebase.png)
 
 This state of affairs most directly represents what we’d like done: for our local, development branch `Z` to be based on the latest work in the main branch `D`. That’s why the command is called “rebase”, because it changes the base commit of the branch it’s run from. If you run it repeatedly, you can carry forward a set of patches indefinitely, always staying up-to-date with the main branch, but without adding unnecessary merge commits to your development branch4. Here are the commands to run, compared to the merge operation performed above:
 

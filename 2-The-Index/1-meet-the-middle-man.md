@@ -4,7 +4,7 @@ Between your data files, which are stored on the filesystem, and your Git blobs,
 
 The index is really just a staging area for your next commit, and there’s a good reason why it exists: it supports a model of development that may be foreign to users of CVS or Subversion, but which is all too familiar to Darcs users: the ability to build up your next commit in stages.
 
-![The Index](images/the-index.png)
+![The Index](../images/the-index.png)
 
 First, let me say that there is a way to ignore the index almost entirely: by passing the `-a` flag to commit. Look at the way Subversion works, for example. When you type `svn status`, what you’ll see is a list of actions to be applied to your repository on the next call to `svn commit`. In a way, this “list of next actions” is a kind of informal index, determined by comparing the state of your working tree with the state of HEAD. If the file `foo.c` has been changed, on your next commit those changes will be saved. If an unknown file has a question mark next to it, it will be ignored; but a new file which has been added with `svn add` will get added to the repository.
 
