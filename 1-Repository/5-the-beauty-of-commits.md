@@ -29,4 +29,4 @@ Another joy of the commit-based system is that you can rephrase even the most co
 
 Here is a picture of how all these pieces fit together:
 
-![Commits](images/commits.png)
+![Commits](../images/commits.png)

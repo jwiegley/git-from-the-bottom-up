@@ -12,8 +12,8 @@ In both cases, your working tree now sits on top of an older HEAD, so you should
 
 But please note: if you have downstream consumers, and they’ve done work on top of your previous head — the one you threw away — changing HEAD like this will force a merge to happen automatically after their next pull. Below is what your tree would look like after a soft reset and a new commit:
 
-![Soft Reset Commit](images/soft-reset-commit.png)
+![Soft Reset Commit](../images/soft-reset-commit.png)
 
 And here’s what your consumer’s HEAD would look like after they pulled again, with colors to show how the various commits match up:
 
-![Soft Reset Pull](images/soft-reset-pull.png)
+![Soft Reset Pull](../images/soft-reset-pull.png)
