@@ -37,7 +37,7 @@ $ echo "Initial commit" | git commit-tree 0563f77
 
 The raw `commit-tree` command takes a tree’s hash id and makes a commit object to hold it. If I had wanted the commit to have a parent, I would have had to specify the parent commit’s hash id explicitly using the `-p` option. Also, note here that the hash id differs from what will appear on your system: This is because my commit object refers to both my name, and the date at which I created the commit, and these two details will always be different from yours.
 
-Our work is not done yet, though, since I haven’t registered the commit as the new head of the current branch:
+Our work is not done yet, though, since I haven’t registered the commit as the new head of a branch:
 
 ```bash
 $ echo 5f1bc85745dcccce6121494fdd37658cb4ad441f > .git/refs/heads/master
