@@ -25,8 +25,7 @@ $ git commit -m "Added my greeting"
 
 At this point our blob should be in the system exactly as we expected, using the hash id determined above. As a convenience, Git requires only as many digits of the hash id as are necessary to uniquely identify it within the repository. Usually just six or seven digits is enough:
 
-```
-bash
+```bash
 $ git cat-file -t af5626b
 blob
 $ git cat-file blob af5626b
