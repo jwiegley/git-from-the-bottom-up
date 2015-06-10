@@ -2,7 +2,7 @@
 
 Until now we’ve described two ways in which blobs find their way into Git: first they’re created in your index, both without a parent tree and without an owning commit; and then they’re committed into the repository, where they live as leaves hanging off of the tree held by that commit. But there are two other ways a blob can dwell in your repository.
 
-The first of these is the `Git reflog`, a kind of meta-repository that records — in the form of commits — every change you make to your repository. This means that when you create a tree from your index and store it under a commit (all of which is done by `commit`), you are also inadvertently adding that commit to the reflog, which can be viewed using the following command:
+The first of these is the Git `reflog`, a kind of meta-repository that records — in the form of commits — every change you make to your repository. This means that when you create a tree from your index and store it under a commit (all of which is done by `commit`), you are also inadvertently adding that commit to the reflog, which can be viewed using the following command:
 
 ```bash
 $ git reflog
