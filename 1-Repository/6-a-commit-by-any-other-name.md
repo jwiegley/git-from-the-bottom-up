@@ -41,7 +41,7 @@ same commit.
 
 * **--since="2 weeks ago"** — Refers to all commits since a certain date.
 
-* **--until=”1 week ago”** — Refers to all commits since a certain date.
+* **--until=”1 week ago”** — Refers to all commits before a certain date.
 
 * **--grep=pattern** — Refers to all commits whose commit message matches the regular expression pattern.
 
