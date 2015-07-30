@@ -21,7 +21,7 @@ same commit.
 
 * **name^2** — If a commit has multiple parents (such as a merge commit), you can refer to the _nth_ parent using `name^n`.
 
-* **name~10** — A commit’s _nth_ ancestor may be referenced using a tilde (~) followed by the ordinal number. This type of usage is common with `rebase -i`, for example, to mean “show me a bunch of recent commits”. This is the same as name^^^^^^^^^^.
+* **name~10** — A commit’s _nth_ generation ancestor may be referenced using a tilde (~) followed by the ordinal number. This type of usage is common with `rebase -i`, for example, to mean “show me a bunch of recent commits”. This is the same as name^^^^^^^^^^.
 
 * **name:path** — To reference a certain file within a commit’s content tree, specify that file’s name after a colon. This is helpful with show, or to show the difference between two versions of a committed file:
 
@@ -41,7 +41,7 @@ same commit.
 
 * **--since="2 weeks ago"** — Refers to all commits since a certain date.
 
-* **--until=”1 week ago”** — Refers to all commits since a certain date.
+* **--until=”1 week ago”** — Refers to all commits before a certain date.
 
 * **--grep=pattern** — Refers to all commits whose commit message matches the regular expression pattern.
 
