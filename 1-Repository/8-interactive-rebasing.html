@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Interactive rebasing | Git from the Bottom Up</title>
+
+    <!-- Styles and fonts -->
+    <link href="../themes/hamilton/stylesheets/hamilton.css" rel="stylesheet" type="text/css" />
+    <link href="../themes/hamilton/stylesheets/syntax.css" rel="stylesheet" type="text/css" />
+
+    <link href='//fonts.googleapis.com/css?family=Crimson+Text:400,400italic,700italic,700' rel='stylesheet' type='text/css'>
+
+    <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+
+    <script src="../themes/hamilton/javascripts/modernizr.js" type="text/javascript"></script>
+  </head>
+
+  <body class="x1-Repository x1-Repository_8-interactive-rebasing hamilton">
+    <div class="page-wrapper">
+
+      <!--[if lt IE 7]>
+          <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+      <![endif]-->
+
+      <header class="page-header" role="banner">
+<a class="invisilink" href="../">            <span class="book-title">Git from the Bottom Up</span>
+</a>        <span class="book-author visuallyhidden">by John Wiegley</span>
+      </header>
+
+      <div class="content-wrapper clearfix">
+        <div class="toc" id="toc">
+          <a href="#" class="toc-title" id="toc-title"><h3>Table of Contents</h3></a>
+          <nav role="navigation" id="toc-nav" style="display: none;">
+            <ul id="toc-list">
+              <li class='child '><a href="../">Introduction</a></li><li class='parent'><span class='parent-label'>1 Repository</span><ul><li class='child '><a href="1-directory-content-tracking.html">Repository: Directory content tracking</a></li><li class='child '><a href="2-introducing-the-blob.html">Introducing the blob</a></li><li class='child '><a href="3-blobs-are-stored-in-trees.html">Blobs are stored in trees</a></li><li class='child '><a href="4-how-trees-are-made.html">How trees are made</a></li><li class='child '><a href="5-the-beauty-of-commits.html">The beauty of commits</a></li><li class='child '><a href="6-a-commit-by-any-other-name.html">A commit by any other name&hellip;</a></li><li class='child '><a href="7-branching-and-the-power-of-rebase.html">Branching and the power of rebase</a></li><li class='child active'><a href="8-interactive-rebasing.html">Interactive rebasing</a></li></ul></li><li class='parent'><span class='parent-label'>2 the Index</span><ul><li class='child '><a href="../2-The-Index/1-meet-the-middle-man.html">The Index: Meet the middle man</a></li><li class='child '><a href="../2-The-Index/2-taking-the-index-further.html">Taking the index further</a></li></ul></li><li class='parent'><span class='parent-label'>3 Reset</span><ul><li class='child '><a href="../3-Reset/1-to-reset-or-not-to-reset.html">To reset, or not to reset</a></li><li class='child '><a href="../3-Reset/2-doing-a-mixed-reset.html">Doing a mixed reset</a></li><li class='child '><a href="../3-Reset/3-doing-a-soft-reset.html">Doing a soft reset</a></li><li class='child '><a href="../3-Reset/4-doing-a-hard-reset.html">Doing a hard reset</a></li></ul></li><li class='child '><a href="../4-Stashing-and-the-reflog.html">Stashing and the reflog</a></li><li class='child '><a href="../5-Conclusion.html">Conclusion</a></li><li class='child '><a href="../6-Further-Reading.html">Further reading</a></li><li class='parent'><span class='parent-label'>Assets</span><ul><li class='parent'><span class='parent-label'>Git From the Bottom up.mellel</span><ul><li class='parent'><span class='parent-label'>Images</span><ul></ul></li></ul></li></ul></li>
+            </ul>
+          </nav>
+        </div>
+        <section class="main-content" role="main">
+          <div class="main-content-source">
+            <h1>Interactive rebasing</h1>
+
+<p>When rebase was run above, it automatically rewrote all the commits from <code>W</code> to <code>Z</code> in order to rebase the <code>Z</code> branch onto the <code>D</code> commit (i.e., the head commit of the <code>D</code> branch). You can, however, take complete control over how this rewriting is done. If you supply the <code>-i</code> option to <code>rebase</code>, it will pop you into an editing buffer where you can choose what should be done for every commit in the local <code>Z</code> branch:</p>
+
+<ul>
+<li><p><strong>pick</strong> — This is the default behavior chosen for every commit in the branch if you don’t use interactive mode. It means that the commit in question should be applied to its (now rewritten) parent commit. For every commit that involves conflicts, the <code>rebase</code> command gives you an opportunity to resolve them.</p></li>
+<li><p><strong>squash</strong> — A squashed commit will have its contents “folded” into the contents of the commit preceding it. This can be done any number of times. If you took the example branch above and squashed all of its commits (except the first, which must be a <strong>pick</strong> in order to <strong>squash</strong>), you would end up with a new <code>Z</code> branch containing only one commit on top of <code>D</code>. Useful if you have changes spread over multiple commits, but you’d like the history rewritten to show them all as a single commit.</p></li>
+<li><p><strong>edit</strong> — If you mark a commit as <strong>edit</strong>, the rebasing process will stop at that commit and leave you at the shell with the current working tree set to reflect that commit. The index will have all the commit’s changes registered for inclusion when you run <code>commit</code>. You can thus make whatever changes you like: amend a change, undo a change, etc.; and after committing, and running <code>rebase --continue</code>, the commit will be rewritten as if those changes had been made originally.</p></li>
+<li><p><strong>(drop)</strong> — If you remove a commit from the interactive rebase file, or if you comment it out, the commit will simply disappear as if it had never been checked in. Note that this can cause merge conflicts if any of the later commits in the branch depended on those changes.</p></li>
+</ul>
+
+<p>The power of this command is hard to appreciate at first, but it grants you virtually unlimited control over the shape of any branch. You can use it to:</p>
+
+<ul>
+<li>Collapse multiple commits into single ones.</li>
+<li>Re-order commits.</li>
+<li>Remove incorrect changes you now regret.</li>
+<li>Move the base of your branch <em>onto any other commit in the repository</em>.</li>
+<li>Modify a single commit, to amend a change long after the fact.</li>
+</ul>
+
+<p>I recommend reading the man page for <code>rebase</code> at this point, as it contains several good examples how the true power of this beast may be unleashed. To give you one last taste of how potent a tool this is, consider the following scenario and what you’d do if one day you wanted to migrate the secondary branch <code>L</code> to become the new head of <code>Z</code>:</p>
+
+<p><img alt="Rebasing Multiple Branches Part 1" src="../images/rebasing-branches-1.png" /></p>
+
+<p>The picture reads: we have our main-line of development, <code>D</code>, which three commits ago was branched to begin speculative development on <code>Z</code>. At some point in the middle of all this, back when <code>C</code> and <code>X</code> were the heads of their respective branches, we decided to begin another speculation which finally produced <code>L</code>. Now we’ve found that <code>L</code>’s code is good, but not quite good enough to merge back over to the main-line, so we decide to move those changes over to the development branch <code>Z</code>, making it look as though we’d done them all on one branch after all. Oh, and while we’re at it, we want to edit <code>J</code> real quick to change the copyright date, since we forgot it was 2008 when we made the change! Here are the commands needed to untangle this knot:</p>
+<pre class="highlight shell"><span class="gp">$ </span>git checkout L
+<span class="gp">$ </span>git rebase -i Z
+</pre>
+
+<p>After resolving whatever conflicts emerge, I now have this repository:</p>
+
+<p><img alt="Rebasing Multiple Branches Part 1" src="../images/rebasing-branches-2.png" /></p>
+
+<p>As you can see, when it comes to local development, rebasing gives you unlimited control over how your commits appear in the repository.</p>
+
+          </div>
+          <nav class="main-content-nav clearfix" role="navigation">
+            <ul class="clearfix">
+              <li><a class="previous" href="7-branching-and-the-power-of-rebase.html">Previous</a></li>
+                <li><a class="next" href="../2-The-Index/1-meet-the-middle-man.html">Next</a></li>
+            </ul>
+          </nav>
+        </section>
+
+        </div><!-- end content-wrapper -->
+
+      <footer class="page-footer">
+
+        <div class="footer-wrapper clearfix" role="complementary">
+          <!--
+          <div class="block-pair clearfix">
+            <div class="block downloads">
+              <h3>Downloads</h3>
+              <p>Download this book in
+                  <a href="#">PDF</a>, <a href="#">mobi</a>, and <a href="#">epub</a>
+                form for free.
+              </p>
+            </div>
+
+            <div class="block translations">
+              <h3>Book translations</h3>
+              <p>This book is translated into
+                <a href="#">Spanish</a>
+                and <a href="#">English</a>.
+                You can help with more translations <a href="https://github.com/jwiegley/git-from-the-bottom-up">on Github</a>.
+              </p>
+            </div>
+          </div>
+          -->
+          <div class="block-pair clearfix">
+            <div class="block license">
+              <h3>License</h3>
+              <p>This book is licensed under the <a href="https://creativecommons.org/licenses/by-nd/4.0">Attribution-NoDerivs</a> license.</p>
+            </div>
+            <div class="block open-source">
+              <h3>This book is open source</h3>
+              <p>The source of this book is <a href="https://github.com/jwiegley/git-from-the-bottom-up">hosted on Github</a>. Go, ahead. Check it out.</p>
+            </div>
+          </div>
+
+          <div class="small-text"><small>Made with <a href="http://bitbooks.cc">Bitbooks</a></small></div>
+
+        </div><!-- end footer-wrapper -->
+
+      </footer>
+
+
+    </div><!-- end page-wrapper -->
+
+    <!-- include scripts just before the close of the body tag -->
+    <script src="../themes/hamilton/javascripts/anchor.min.js" type="text/javascript"></script>
+    <script src="../themes/hamilton/javascripts/hamilton.js" type="text/javascript"></script>
+  </body>
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Git from the Bottom Up</title>
+
+    <!-- Styles and fonts -->
+    <link href="themes/hamilton/stylesheets/hamilton.css" rel="stylesheet" type="text/css" />
+    <link href="themes/hamilton/stylesheets/syntax.css" rel="stylesheet" type="text/css" />
+
+    <link href='//fonts.googleapis.com/css?family=Crimson+Text:400,400italic,700italic,700' rel='stylesheet' type='text/css'>
+
+    <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+
+    <script src="themes/hamilton/javascripts/modernizr.js" type="text/javascript"></script>
+  </head>
+
+  <body class="index hamilton">
+    <div class="page-wrapper">
+
+      <!--[if lt IE 7]>
+          <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+      <![endif]-->
+
+      <header class="page-header" role="banner">
+<a class="invisilink" href="./">            <h1 class="book-title">Git from the Bottom Up</h1>
+</a>        <span class="book-author visuallyhidden">by John Wiegley</span>
+      </header>
+
+      <div class="content-wrapper clearfix">
+        <div class="toc" id="toc">
+          <a href="#" class="toc-title" id="toc-title"><h3>Table of Contents</h3></a>
+          <nav role="navigation" id="toc-nav" style="display: none;">
+            <ul id="toc-list">
+              <li class='child active'><a href="./">Introduction</a></li><li class='parent'><span class='parent-label'>1 Repository</span><ul><li class='child '><a href="1-Repository/1-directory-content-tracking.html">Repository: Directory content tracking</a></li><li class='child '><a href="1-Repository/2-introducing-the-blob.html">Introducing the blob</a></li><li class='child '><a href="1-Repository/3-blobs-are-stored-in-trees.html">Blobs are stored in trees</a></li><li class='child '><a href="1-Repository/4-how-trees-are-made.html">How trees are made</a></li><li class='child '><a href="1-Repository/5-the-beauty-of-commits.html">The beauty of commits</a></li><li class='child '><a href="1-Repository/6-a-commit-by-any-other-name.html">A commit by any other name&hellip;</a></li><li class='child '><a href="1-Repository/7-branching-and-the-power-of-rebase.html">Branching and the power of rebase</a></li><li class='child '><a href="1-Repository/8-interactive-rebasing.html">Interactive rebasing</a></li></ul></li><li class='parent'><span class='parent-label'>2 the Index</span><ul><li class='child '><a href="2-The-Index/1-meet-the-middle-man.html">The Index: Meet the middle man</a></li><li class='child '><a href="2-The-Index/2-taking-the-index-further.html">Taking the index further</a></li></ul></li><li class='parent'><span class='parent-label'>3 Reset</span><ul><li class='child '><a href="3-Reset/1-to-reset-or-not-to-reset.html">To reset, or not to reset</a></li><li class='child '><a href="3-Reset/2-doing-a-mixed-reset.html">Doing a mixed reset</a></li><li class='child '><a href="3-Reset/3-doing-a-soft-reset.html">Doing a soft reset</a></li><li class='child '><a href="3-Reset/4-doing-a-hard-reset.html">Doing a hard reset</a></li></ul></li><li class='child '><a href="4-Stashing-and-the-reflog.html">Stashing and the reflog</a></li><li class='child '><a href="5-Conclusion.html">Conclusion</a></li><li class='child '><a href="6-Further-Reading.html">Further reading</a></li><li class='parent'><span class='parent-label'>Assets</span><ul><li class='parent'><span class='parent-label'>Git From the Bottom up.mellel</span><ul><li class='parent'><span class='parent-label'>Images</span><ul></ul></li></ul></li></ul></li>
+            </ul>
+          </nav>
+        </div>
+        <section class="main-content" role="main">
+          <div class="main-content-source">
+            <h1>Introduction</h1>
+
+<p>Welcome to the world of Git. I hope this document will help to advance your understanding of this powerful content tracking system, and reveal a bit of the simplicity underlying it — however dizzying its array of options may seem from the outside.</p>
+
+<p>Before we dive in, there are a few terms which should be mentioned first, since they’ll appear repeatedly throughout this text:</p>
+
+<ul>
+<li><p><strong>repository</strong> — A <strong>repository</strong> is a collection of <em>commits</em>, each of which is an archive of what the project&rsquo;s <em>working tree</em> looked like at a past date, whether on your machine or someone else&rsquo;s. It also defines HEAD (see below), which identifies the branch or commit the current working tree stemmed from. Lastly, it contains a set of <em>branches</em> and <em>tags</em>, to identify certain commits by name.</p></li>
+<li><p><strong>the index</strong> — Unlike other, similar tools you may have used, Git does not commit changes directly from the <em>working tree</em> into the <em>repository</em>. Instead, changes are first registered in something called <strong>the index</strong>. Think of it as a way of “confirming” your changes, one by one, before doing a commit (which records all your approved changes at once). Some find it helpful to call it instead as the “staging area”, instead of the index.</p></li>
+<li><p><strong>working tree</strong> — A <strong>working tree</strong> is any directory on your filesystem which has a <em>repository</em> associated with it (typically indicated by the presence of a sub-directory within it named <code>.git</code>.). It includes all the files and sub-directories in that directory.</p></li>
+<li><p><strong>commit</strong> — A <strong>commit</strong> is a snapshot of your working tree at some point in time. The state of HEAD (see below) at the time your commit is made becomes that commit’s parent. This is what creates the notion of a “revision history”.</p></li>
+<li><p><strong>branch</strong> — A <strong>branch</strong> is just a name for a commit (and much more will be said about commits in a moment), also called a reference. It’s the parentage of a commit which defines its history, and thus the typical notion of a “branch of development”.</p></li>
+<li><p><strong>tag</strong> — A <strong>tag</strong> is also a name for a commit, similar to a <em>branch</em>, except that it always names the same commit, and can have its own description text.</p></li>
+<li><p><strong>master</strong> — The mainline of development in most repositories is done on a branch called “**master**”. Although this is a typical default, it is in no way special.</p></li>
+<li><p><strong>HEAD</strong> — <strong>HEAD</strong> is used by your repository to define what is currently checked out:</p>
+
+<ul>
+<li>If you checkout a branch, HEAD symbolically refers to that branch, indicating that the branch name should be updated after the next commit operation.</li>
+<li> If you checkout a specific commit, HEAD refers to that commit only. This is referred to as a detached <em>HEAD</em>, and occurs, for example, if you check out a tag name.</li>
+</ul></li>
+</ul>
+
+<p>The usual flow of events is this: After creating a repository, your work is done in the working tree. Once your work reaches a significant point — the completion of a bug, the end of the working day, a moment when everything compiles — you add your changes successively to the index. Once the index contains everything you intend to commit, you record its content in the repository. Here’s a simple diagram that shows a typical project’s life-cycle:</p>
+
+<p><img alt="Project Lifecycle" src="images/lifecycle.png" /></p>
+
+<p>With this basic picture in mind, the following sections shall attempt to describe how each of these different entities is important to the operation of Git.</p>
+
+          </div>
+          <nav class="main-content-nav clearfix" role="navigation">
+            <ul class="clearfix">
+              <li></li>
+                <li><a class="next" href="1-Repository/1-directory-content-tracking.html">Next</a></li>
+            </ul>
+          </nav>
+        </section>
+
+        </div><!-- end content-wrapper -->
+
+      <footer class="page-footer">
+
+        <div class="footer-wrapper clearfix" role="complementary">
+          <!--
+          <div class="block-pair clearfix">
+            <div class="block downloads">
+              <h3>Downloads</h3>
+              <p>Download this book in
+                  <a href="#">PDF</a>, <a href="#">mobi</a>, and <a href="#">epub</a>
+                form for free.
+              </p>
+            </div>
+
+            <div class="block translations">
+              <h3>Book translations</h3>
+              <p>This book is translated into
+                <a href="#">Spanish</a>
+                and <a href="#">English</a>.
+                You can help with more translations <a href="https://github.com/jwiegley/git-from-the-bottom-up">on Github</a>.
+              </p>
+            </div>
+          </div>
+          -->
+          <div class="block-pair clearfix">
+            <div class="block license">
+              <h3>License</h3>
+              <p>This book is licensed under the <a href="https://creativecommons.org/licenses/by-nd/4.0">Attribution-NoDerivs</a> license.</p>
+            </div>
+            <div class="block open-source">
+              <h3>This book is open source</h3>
+              <p>The source of this book is <a href="https://github.com/jwiegley/git-from-the-bottom-up">hosted on Github</a>. Go, ahead. Check it out.</p>
+            </div>
+          </div>
+
+          <div class="small-text"><small>Made with <a href="http://bitbooks.cc">Bitbooks</a></small></div>
+
+        </div><!-- end footer-wrapper -->
+
+      </footer>
+
+
+    </div><!-- end page-wrapper -->
+
+    <!-- include scripts just before the close of the body tag -->
+    <script src="themes/hamilton/javascripts/anchor.min.js" type="text/javascript"></script>
+    <script src="themes/hamilton/javascripts/hamilton.js" type="text/javascript"></script>
+  </body>
+</html>

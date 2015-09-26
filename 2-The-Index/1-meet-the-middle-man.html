@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>The Index: Meet the middle man | Git from the Bottom Up</title>
+
+    <!-- Styles and fonts -->
+    <link href="../themes/hamilton/stylesheets/hamilton.css" rel="stylesheet" type="text/css" />
+    <link href="../themes/hamilton/stylesheets/syntax.css" rel="stylesheet" type="text/css" />
+
+    <link href='//fonts.googleapis.com/css?family=Crimson+Text:400,400italic,700italic,700' rel='stylesheet' type='text/css'>
+
+    <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+
+    <script src="../themes/hamilton/javascripts/modernizr.js" type="text/javascript"></script>
+  </head>
+
+  <body class="x2-The-Index x2-The-Index_1-meet-the-middle-man hamilton">
+    <div class="page-wrapper">
+
+      <!--[if lt IE 7]>
+          <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+      <![endif]-->
+
+      <header class="page-header" role="banner">
+<a class="invisilink" href="../">            <span class="book-title">Git from the Bottom Up</span>
+</a>        <span class="book-author visuallyhidden">by John Wiegley</span>
+      </header>
+
+      <div class="content-wrapper clearfix">
+        <div class="toc" id="toc">
+          <a href="#" class="toc-title" id="toc-title"><h3>Table of Contents</h3></a>
+          <nav role="navigation" id="toc-nav" style="display: none;">
+            <ul id="toc-list">
+              <li class='child '><a href="../">Introduction</a></li><li class='parent'><span class='parent-label'>1 Repository</span><ul><li class='child '><a href="../1-Repository/1-directory-content-tracking.html">Repository: Directory content tracking</a></li><li class='child '><a href="../1-Repository/2-introducing-the-blob.html">Introducing the blob</a></li><li class='child '><a href="../1-Repository/3-blobs-are-stored-in-trees.html">Blobs are stored in trees</a></li><li class='child '><a href="../1-Repository/4-how-trees-are-made.html">How trees are made</a></li><li class='child '><a href="../1-Repository/5-the-beauty-of-commits.html">The beauty of commits</a></li><li class='child '><a href="../1-Repository/6-a-commit-by-any-other-name.html">A commit by any other name&hellip;</a></li><li class='child '><a href="../1-Repository/7-branching-and-the-power-of-rebase.html">Branching and the power of rebase</a></li><li class='child '><a href="../1-Repository/8-interactive-rebasing.html">Interactive rebasing</a></li></ul></li><li class='parent'><span class='parent-label'>2 the Index</span><ul><li class='child active'><a href="1-meet-the-middle-man.html">The Index: Meet the middle man</a></li><li class='child '><a href="2-taking-the-index-further.html">Taking the index further</a></li></ul></li><li class='parent'><span class='parent-label'>3 Reset</span><ul><li class='child '><a href="../3-Reset/1-to-reset-or-not-to-reset.html">To reset, or not to reset</a></li><li class='child '><a href="../3-Reset/2-doing-a-mixed-reset.html">Doing a mixed reset</a></li><li class='child '><a href="../3-Reset/3-doing-a-soft-reset.html">Doing a soft reset</a></li><li class='child '><a href="../3-Reset/4-doing-a-hard-reset.html">Doing a hard reset</a></li></ul></li><li class='child '><a href="../4-Stashing-and-the-reflog.html">Stashing and the reflog</a></li><li class='child '><a href="../5-Conclusion.html">Conclusion</a></li><li class='child '><a href="../6-Further-Reading.html">Further reading</a></li><li class='parent'><span class='parent-label'>Assets</span><ul><li class='parent'><span class='parent-label'>Git From the Bottom up.mellel</span><ul><li class='parent'><span class='parent-label'>Images</span><ul></ul></li></ul></li></ul></li>
+            </ul>
+          </nav>
+        </div>
+        <section class="main-content" role="main">
+          <div class="main-content-source">
+            <h1>The Index: Meet the middle man</h1>
+
+<p>Between your data files, which are stored on the filesystem, and your Git blobs, which are stored in the repository, there stands a somewhat strange entity: the Git index. Part of what makes this beast hard to understand is that it’s got a rather unfortunate name. It’s an index in the sense that it refers to the set of newly created trees and blobs which you created by running add. These new objects will soon get bound into a new tree for the purpose of committing to your repository — but until then, they are only referenced by the index. That means that if you unregister a change from the index with reset, you’ll end up with an orphaned blob that will get deleted at some point at the future.</p>
+
+<p>The index is really just a staging area for your next commit, and there’s a good reason why it exists: it supports a model of development that may be foreign to users of CVS or Subversion, but which is all too familiar to Darcs users: the ability to build up your next commit in stages.</p>
+
+<p><img alt="The Index" src="../images/the-index.png" /></p>
+
+<p>First, let me say that there is a way to ignore the index almost entirely: by passing the <code>-a</code> flag to commit. Look at the way Subversion works, for example. When you type <code>svn status</code>, what you’ll see is a list of actions to be applied to your repository on the next call to <code>svn commit</code>. In a way, this “list of next actions” is a kind of informal index, determined by comparing the state of your working tree with the state of HEAD. If the file <code>foo.c</code> has been changed, on your next commit those changes will be saved. If an unknown file has a question mark next to it, it will be ignored; but a new file which has been added with <code>svn add</code> will get added to the repository.</p>
+
+<p>This is no different from what happens if you use <code>commit -a</code>: new, unknown files are ignored, but new files which have been added with add are added to the repository, as are any changes to existing files. This interaction is nearly identical with the Subversion way of doing things.</p>
+
+<p>The real difference is that in the Subversion case, your “list of next actions” is always determined by looking at the current working tree. In Git, the “list of next actions” <em>is</em> the contents of the index, which represents what will become the next state of HEAD, and that you can manipulate directly before executing <code>commit</code>. This gives you an extra layer of control over what’s going to happen, by allowing you to stage those changes in advance.</p>
+
+<p>If this isn’t clear yet, consider the following example: you have a trusty source file, <code>foo.c</code>, and you’ve made two sets of unrelated changes to it. What you’d like to do is to tease apart these changes into two different commits, each with its own description. Here’s how you’d do this in Subversion:</p>
+<pre class="highlight shell"><span class="gp">$ </span>svn diff foo.c &gt; foo.patch
+<span class="gp">$ </span>vi foo.patch
+&lt;edit foo.patch, keeping the changes I want to commit later&gt;
+<span class="gp">$ </span>patch -p1 -R &lt; foo.patch  <span class="c"># remove the second set of changes</span>
+<span class="gp">$ </span>svn commit -m <span class="s2">"First commit message"</span>
+<span class="gp">$ </span>patch -p1 &lt; foo.patch  <span class="c"># re-apply the remaining changes</span>
+<span class="gp">$ </span>svn commit -m <span class="s2">"Second commit message"</span>
+</pre>
+
+<p>Sounds like fun? Now repeat that many times over for a complex, dynamic set of changes. Here’s the Git version, making use of the index:</p>
+<pre class="highlight plaintext">$ git add --patch foo.c
+&lt;select the hunks I want to commit first&gt;
+$ git commit -m "First commit message"
+$ git add foo.c  # add the remaining changes
+$ git commit -m "Second commit message"
+</pre>
+
+<p>What’s more, it gets even easier! If you like Emacs, the superlative tool <code>gitsum.el</code>, by Christian Neukirchan, puts a beautiful face on this potentially tedious process. I recently used it to tease apart 11 separate commits from a set of conflated changes. Thank you, Christian!</p>
+
+          </div>
+          <nav class="main-content-nav clearfix" role="navigation">
+            <ul class="clearfix">
+              <li><a class="previous" href="../1-Repository/8-interactive-rebasing.html">Previous</a></li>
+                <li><a class="next" href="2-taking-the-index-further.html">Next</a></li>
+            </ul>
+          </nav>
+        </section>
+
+        </div><!-- end content-wrapper -->
+
+      <footer class="page-footer">
+
+        <div class="footer-wrapper clearfix" role="complementary">
+          <!--
+          <div class="block-pair clearfix">
+            <div class="block downloads">
+              <h3>Downloads</h3>
+              <p>Download this book in
+                  <a href="#">PDF</a>, <a href="#">mobi</a>, and <a href="#">epub</a>
+                form for free.
+              </p>
+            </div>
+
+            <div class="block translations">
+              <h3>Book translations</h3>
+              <p>This book is translated into
+                <a href="#">Spanish</a>
+                and <a href="#">English</a>.
+                You can help with more translations <a href="https://github.com/jwiegley/git-from-the-bottom-up">on Github</a>.
+              </p>
+            </div>
+          </div>
+          -->
+          <div class="block-pair clearfix">
+            <div class="block license">
+              <h3>License</h3>
+              <p>This book is licensed under the <a href="https://creativecommons.org/licenses/by-nd/4.0">Attribution-NoDerivs</a> license.</p>
+            </div>
+            <div class="block open-source">
+              <h3>This book is open source</h3>
+              <p>The source of this book is <a href="https://github.com/jwiegley/git-from-the-bottom-up">hosted on Github</a>. Go, ahead. Check it out.</p>
+            </div>
+          </div>
+
+          <div class="small-text"><small>Made with <a href="http://bitbooks.cc">Bitbooks</a></small></div>
+
+        </div><!-- end footer-wrapper -->
+
+      </footer>
+
+
+    </div><!-- end page-wrapper -->
+
+    <!-- include scripts just before the close of the body tag -->
+    <script src="../themes/hamilton/javascripts/anchor.min.js" type="text/javascript"></script>
+    <script src="../themes/hamilton/javascripts/hamilton.js" type="text/javascript"></script>
+  </body>
+</html>

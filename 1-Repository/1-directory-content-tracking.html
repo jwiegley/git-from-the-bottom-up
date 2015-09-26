@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Repository: Directory content tracking | Git from the Bottom Up</title>
+
+    <!-- Styles and fonts -->
+    <link href="../themes/hamilton/stylesheets/hamilton.css" rel="stylesheet" type="text/css" />
+    <link href="../themes/hamilton/stylesheets/syntax.css" rel="stylesheet" type="text/css" />
+
+    <link href='//fonts.googleapis.com/css?family=Crimson+Text:400,400italic,700italic,700' rel='stylesheet' type='text/css'>
+
+    <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+
+    <script src="../themes/hamilton/javascripts/modernizr.js" type="text/javascript"></script>
+  </head>
+
+  <body class="x1-Repository x1-Repository_1-directory-content-tracking hamilton">
+    <div class="page-wrapper">
+
+      <!--[if lt IE 7]>
+          <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+      <![endif]-->
+
+      <header class="page-header" role="banner">
+<a class="invisilink" href="../">            <span class="book-title">Git from the Bottom Up</span>
+</a>        <span class="book-author visuallyhidden">by John Wiegley</span>
+      </header>
+
+      <div class="content-wrapper clearfix">
+        <div class="toc" id="toc">
+          <a href="#" class="toc-title" id="toc-title"><h3>Table of Contents</h3></a>
+          <nav role="navigation" id="toc-nav" style="display: none;">
+            <ul id="toc-list">
+              <li class='child '><a href="../">Introduction</a></li><li class='parent'><span class='parent-label'>1 Repository</span><ul><li class='child active'><a href="1-directory-content-tracking.html">Repository: Directory content tracking</a></li><li class='child '><a href="2-introducing-the-blob.html">Introducing the blob</a></li><li class='child '><a href="3-blobs-are-stored-in-trees.html">Blobs are stored in trees</a></li><li class='child '><a href="4-how-trees-are-made.html">How trees are made</a></li><li class='child '><a href="5-the-beauty-of-commits.html">The beauty of commits</a></li><li class='child '><a href="6-a-commit-by-any-other-name.html">A commit by any other name&hellip;</a></li><li class='child '><a href="7-branching-and-the-power-of-rebase.html">Branching and the power of rebase</a></li><li class='child '><a href="8-interactive-rebasing.html">Interactive rebasing</a></li></ul></li><li class='parent'><span class='parent-label'>2 the Index</span><ul><li class='child '><a href="../2-The-Index/1-meet-the-middle-man.html">The Index: Meet the middle man</a></li><li class='child '><a href="../2-The-Index/2-taking-the-index-further.html">Taking the index further</a></li></ul></li><li class='parent'><span class='parent-label'>3 Reset</span><ul><li class='child '><a href="../3-Reset/1-to-reset-or-not-to-reset.html">To reset, or not to reset</a></li><li class='child '><a href="../3-Reset/2-doing-a-mixed-reset.html">Doing a mixed reset</a></li><li class='child '><a href="../3-Reset/3-doing-a-soft-reset.html">Doing a soft reset</a></li><li class='child '><a href="../3-Reset/4-doing-a-hard-reset.html">Doing a hard reset</a></li></ul></li><li class='child '><a href="../4-Stashing-and-the-reflog.html">Stashing and the reflog</a></li><li class='child '><a href="../5-Conclusion.html">Conclusion</a></li><li class='child '><a href="../6-Further-Reading.html">Further reading</a></li><li class='parent'><span class='parent-label'>Assets</span><ul><li class='parent'><span class='parent-label'>Git From the Bottom up.mellel</span><ul><li class='parent'><span class='parent-label'>Images</span><ul></ul></li></ul></li></ul></li>
+            </ul>
+          </nav>
+        </div>
+        <section class="main-content" role="main">
+          <div class="main-content-source">
+            <h1>Repository: Directory content tracking</h1>
+
+<p>As mentioned above, what Git does is quite rudimentary: it maintains snapshots of a directory’s contents. Much of its internal design can be understood in terms of this basic task.</p>
+
+<p>The design of a Git repository in many ways mirrors the structure of a UNIX filesystem: A <em>filesystem</em> begins with a root directory, which typically consists of other directories, most of which have leaf nodes, or <em>files</em>, that contain data. Meta-data about these files’ contents is stored both in the directory (the names), and in the i-nodes that reference the contents of those files (their size, type, permissions, etc). Each <em>i-node</em> has a unique number that identifies the contents of its related file. And while you may have many directory entries pointing to a particular i-node (i.e., hard-links), it’s the i-node which “owns” the contents stored on your filesystem.</p>
+
+<p>Internally, Git shares a strikingly similar structure, albeit with one or two key differences. First, it represents your file’s contents in <em>blobs</em>, which are also leaf nodes in something awfully close to a directory, called a <em>tree</em>. Just as an i-node is uniquely identified by a system-assigned number, a blob is named by computing the SHA1 hash id of its size and contents. For all intents and purposes this is just an arbitrary number, like an i-node, except that it has two additional properties: first, it verifies the blob’s contents will never change; and second, the same contents shall always be represented by the same blob, no matter where it appears: across commits, across repositories — even across the whole Internet. If multiple trees reference the same blob, this is just like hard-linking: the blob will not disappear from your repository as long as there is at least one link remaining to it.</p>
+
+<p>The difference between a Git blob and a filesystem’s file is that a blob stores no metadata about its content. All such information is kept in the tree that holds the blob. One tree may know those contents as a file named “foo” that was created in August 2004, while another tree may know the same contents as a file named “bar” that was created five years later. In a normal filesystem, two files with the same contents but with such different metadata would always be represented as two independent files. Why this difference? Mainly, it’s because a filesystem is designed to support files that change, whereas Git is not. The fact that data is immutable in the Git repository is what makes all of this work and so a different design was needed. And as it turns out, this design allows for much more compact storage, since all objects having identical content can be shared, no matter where they are.</p>
+
+          </div>
+          <nav class="main-content-nav clearfix" role="navigation">
+            <ul class="clearfix">
+              <li><a class="previous" href="../">Previous</a></li>
+                <li><a class="next" href="2-introducing-the-blob.html">Next</a></li>
+            </ul>
+          </nav>
+        </section>
+
+        </div><!-- end content-wrapper -->
+
+      <footer class="page-footer">
+
+        <div class="footer-wrapper clearfix" role="complementary">
+          <!--
+          <div class="block-pair clearfix">
+            <div class="block downloads">
+              <h3>Downloads</h3>
+              <p>Download this book in
+                  <a href="#">PDF</a>, <a href="#">mobi</a>, and <a href="#">epub</a>
+                form for free.
+              </p>
+            </div>
+
+            <div class="block translations">
+              <h3>Book translations</h3>
+              <p>This book is translated into
+                <a href="#">Spanish</a>
+                and <a href="#">English</a>.
+                You can help with more translations <a href="https://github.com/jwiegley/git-from-the-bottom-up">on Github</a>.
+              </p>
+            </div>
+          </div>
+          -->
+          <div class="block-pair clearfix">
+            <div class="block license">
+              <h3>License</h3>
+              <p>This book is licensed under the <a href="https://creativecommons.org/licenses/by-nd/4.0">Attribution-NoDerivs</a> license.</p>
+            </div>
+            <div class="block open-source">
+              <h3>This book is open source</h3>
+              <p>The source of this book is <a href="https://github.com/jwiegley/git-from-the-bottom-up">hosted on Github</a>. Go, ahead. Check it out.</p>
+            </div>
+          </div>
+
+          <div class="small-text"><small>Made with <a href="http://bitbooks.cc">Bitbooks</a></small></div>
+
+        </div><!-- end footer-wrapper -->
+
+      </footer>
+
+
+    </div><!-- end page-wrapper -->
+
+    <!-- include scripts just before the close of the body tag -->
+    <script src="../themes/hamilton/javascripts/anchor.min.js" type="text/javascript"></script>
+    <script src="../themes/hamilton/javascripts/hamilton.js" type="text/javascript"></script>
+  </body>
+</html>

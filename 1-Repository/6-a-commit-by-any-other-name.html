@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>A commit by any other name&hellip; | Git from the Bottom Up</title>
+
+    <!-- Styles and fonts -->
+    <link href="../themes/hamilton/stylesheets/hamilton.css" rel="stylesheet" type="text/css" />
+    <link href="../themes/hamilton/stylesheets/syntax.css" rel="stylesheet" type="text/css" />
+
+    <link href='//fonts.googleapis.com/css?family=Crimson+Text:400,400italic,700italic,700' rel='stylesheet' type='text/css'>
+
+    <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+
+    <script src="../themes/hamilton/javascripts/modernizr.js" type="text/javascript"></script>
+  </head>
+
+  <body class="x1-Repository x1-Repository_6-a-commit-by-any-other-name hamilton">
+    <div class="page-wrapper">
+
+      <!--[if lt IE 7]>
+          <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+      <![endif]-->
+
+      <header class="page-header" role="banner">
+<a class="invisilink" href="../">            <span class="book-title">Git from the Bottom Up</span>
+</a>        <span class="book-author visuallyhidden">by John Wiegley</span>
+      </header>
+
+      <div class="content-wrapper clearfix">
+        <div class="toc" id="toc">
+          <a href="#" class="toc-title" id="toc-title"><h3>Table of Contents</h3></a>
+          <nav role="navigation" id="toc-nav" style="display: none;">
+            <ul id="toc-list">
+              <li class='child '><a href="../">Introduction</a></li><li class='parent'><span class='parent-label'>1 Repository</span><ul><li class='child '><a href="1-directory-content-tracking.html">Repository: Directory content tracking</a></li><li class='child '><a href="2-introducing-the-blob.html">Introducing the blob</a></li><li class='child '><a href="3-blobs-are-stored-in-trees.html">Blobs are stored in trees</a></li><li class='child '><a href="4-how-trees-are-made.html">How trees are made</a></li><li class='child '><a href="5-the-beauty-of-commits.html">The beauty of commits</a></li><li class='child active'><a href="6-a-commit-by-any-other-name.html">A commit by any other name&hellip;</a></li><li class='child '><a href="7-branching-and-the-power-of-rebase.html">Branching and the power of rebase</a></li><li class='child '><a href="8-interactive-rebasing.html">Interactive rebasing</a></li></ul></li><li class='parent'><span class='parent-label'>2 the Index</span><ul><li class='child '><a href="../2-The-Index/1-meet-the-middle-man.html">The Index: Meet the middle man</a></li><li class='child '><a href="../2-The-Index/2-taking-the-index-further.html">Taking the index further</a></li></ul></li><li class='parent'><span class='parent-label'>3 Reset</span><ul><li class='child '><a href="../3-Reset/1-to-reset-or-not-to-reset.html">To reset, or not to reset</a></li><li class='child '><a href="../3-Reset/2-doing-a-mixed-reset.html">Doing a mixed reset</a></li><li class='child '><a href="../3-Reset/3-doing-a-soft-reset.html">Doing a soft reset</a></li><li class='child '><a href="../3-Reset/4-doing-a-hard-reset.html">Doing a hard reset</a></li></ul></li><li class='child '><a href="../4-Stashing-and-the-reflog.html">Stashing and the reflog</a></li><li class='child '><a href="../5-Conclusion.html">Conclusion</a></li><li class='child '><a href="../6-Further-Reading.html">Further reading</a></li><li class='parent'><span class='parent-label'>Assets</span><ul><li class='parent'><span class='parent-label'>Git From the Bottom up.mellel</span><ul><li class='parent'><span class='parent-label'>Images</span><ul></ul></li></ul></li></ul></li>
+            </ul>
+          </nav>
+        </div>
+        <section class="main-content" role="main">
+          <div class="main-content-source">
+            <h1>A commit by any other name&hellip;</h1>
+
+<p>Understanding commits is the key to grokking Git. You’ll know you have reached the Zen plateau of branching wisdom when your mind contains only commit topologies, leaving behind the confusion of branches, tags, local and remote repositories, etc. Hopefully such understanding will not require lopping off your arm — although I can appreciate if you’ve considered it by now.</p>
+
+<p>If commits are the key, how you name commits is the doorway to mastery. There are many, many ways to name commits, ranges of commits, and even some of the objects held by commits, which are accepted by most of the Git commands. Here’s a summary of some of the more basic usages:</p>
+
+<ul>
+<li><p><strong>branchname</strong> — As has been said before, the name of any branch is simply an alias for the most recent commit on that “branch”. This is the same as using the word HEAD whenever that branch is checked out.</p></li>
+<li><p><strong>tagname</strong> — A tag-name alias is identical to a branch alias in terms of naming a commit. The major difference between the two is that tag aliases never change, whereas branch aliases change each time a new commit is checked in to that branch.</p></li>
+<li><p><strong>HEAD</strong> — The currently checked out commit is always called HEAD. If you check out a specific commit — instead of a branch name — then HEAD refers to that commit only and not to any branch. Note that this case is somewhat special, and is called “using a detached HEAD” (I’m sure there’s a joke to be told here&hellip;).</p></li>
+<li><p><strong>c82a22c39cbc32&hellip;</strong> — A commit may always be referenced using its full, 40-character SHA1 hash id. Usually this happens during cut-and-pasting, since there are typically other, more convenient ways to refer to the
+same commit.</p></li>
+<li><p><strong>c82a22c</strong> — You only need use as many digits of a hash id as are needed for a unique reference within the repository. Most of the time, six or seven digits is enough.</p></li>
+<li><p><strong>name^</strong> — The parent of any commit is referenced using the caret symbol. If a commit has more than one parent, the first is used.</p></li>
+<li><p><strong>name^^</strong> — Carets may be applied successively. This alias refers to “the parent of the parent” of the given commit name.</p></li>
+<li><p><strong>name^2</strong> — If a commit has multiple parents (such as a merge commit), you can refer to the <em>nth</em> parent using <code>name^n</code>.</p></li>
+<li><p><strong>name~10</strong> — A commit’s <em>nth</em> generation ancestor may be referenced using a tilde (~) followed by the ordinal number. This type of usage is common with <code>rebase -i</code>, for example, to mean “show me a bunch of recent commits”. This is the same as name^^^^^^^^^^.</p></li>
+<li><p><strong>name:path</strong> — To reference a certain file within a commit’s content tree, specify that file’s name after a colon. This is helpful with show, or to show the difference between two versions of a committed file:</p></li>
+</ul>
+<pre class="highlight shell">  <span class="nv">$ </span>git diff HEAD^1:Makefile HEAD^2:Makefile
+</pre>
+
+<ul>
+<li><p><strong>name^{tree}</strong> — You can reference just the tree held by a commit, rather than the commit itself.</p></li>
+<li><p><strong>name1..name2</strong> — This and the following aliases indicate <em>commit ranges</em>, which are supremely useful with commands like log for seeing what’s happened during a particular span of time. The syntax to the left refers to all the commits reachable from <strong>name2</strong> back to, but not including, <strong>name1</strong>. If either <strong>name1</strong> or <strong>name2</strong> is omitted, HEAD is used in its place.</p></li>
+<li><p><strong>name1&hellip;name2</strong> — A “triple-dot” range is quite different from the two-dot version above. For commands like log, it refers to all the commits referenced by <strong>name1</strong> or <strong>name2</strong>, but not by both. The result is then a list of all the unique commits in both branches. For commands like <code>diff</code>, the range expressed is between <strong>name2</strong> and the common ancestor of <strong>name1</strong> and <strong>name2</strong>. This differs from the <code>log</code> case in that changes introduced by <strong>name1</strong> are not shown.</p></li>
+<li><p><strong>master..</strong> — This usage is equivalent to “<code>master..HEAD</code>”. I’m adding it here, even though it’s been implied above, because I use this kind of alias constantly when reviewing changes made to the current branch.</p></li>
+<li><p><strong>..master</strong> — This, too, is especially useful after you’ve done a <code>fetch</code> and you want to see what changes have occurred since your last <code>rebase</code> or <code>merge</code>.</p></li>
+<li><p><strong>&ndash;since=&ldquo;2 weeks ago&rdquo;</strong> — Refers to all commits since a certain date.</p></li>
+<li><p><strong>&ndash;until=”1 week ago”</strong> — Refers to all commits before a certain date.</p></li>
+<li><p><strong>&ndash;grep=pattern</strong> — Refers to all commits whose commit message matches the regular expression pattern.</p></li>
+<li><p><strong>&ndash;committer=pattern</strong> — Refers to all commits whose committer matches the pattern.</p></li>
+<li><p><strong>&ndash;author=pattern</strong> — Refers to all commits whose author matches the pattern. The author of a commit is the one who created the changes it represents. For local development this is always the same as the committer, but when patches are being sent by e-mail, the author and the committer usually differ.</p></li>
+<li><p><strong>&ndash;no-merges</strong> — Refers to all commits in the range that have only one parent — that is, it ignores all merge commits.</p></li>
+</ul>
+
+<p>Most of these options can be mixed-and-matched. Here is an example which shows the following log entries: changes made to the current branch (branched from master), by myself, within the last month, which contain the text “foo”:</p>
+<pre class="highlight shell"><span class="gp">$ </span>git log --grep<span class="o">=</span><span class="s1">'foo'</span> --author<span class="o">=</span><span class="s1">'johnw'</span> --since<span class="o">=</span><span class="s2">"1 month ago"</span> master..
+</pre>
+
+          </div>
+          <nav class="main-content-nav clearfix" role="navigation">
+            <ul class="clearfix">
+              <li><a class="previous" href="5-the-beauty-of-commits.html">Previous</a></li>
+                <li><a class="next" href="7-branching-and-the-power-of-rebase.html">Next</a></li>
+            </ul>
+          </nav>
+        </section>
+
+        </div><!-- end content-wrapper -->
+
+      <footer class="page-footer">
+
+        <div class="footer-wrapper clearfix" role="complementary">
+          <!--
+          <div class="block-pair clearfix">
+            <div class="block downloads">
+              <h3>Downloads</h3>
+              <p>Download this book in
+                  <a href="#">PDF</a>, <a href="#">mobi</a>, and <a href="#">epub</a>
+                form for free.
+              </p>
+            </div>
+
+            <div class="block translations">
+              <h3>Book translations</h3>
+              <p>This book is translated into
+                <a href="#">Spanish</a>
+                and <a href="#">English</a>.
+                You can help with more translations <a href="https://github.com/jwiegley/git-from-the-bottom-up">on Github</a>.
+              </p>
+            </div>
+          </div>
+          -->
+          <div class="block-pair clearfix">
+            <div class="block license">
+              <h3>License</h3>
+              <p>This book is licensed under the <a href="https://creativecommons.org/licenses/by-nd/4.0">Attribution-NoDerivs</a> license.</p>
+            </div>
+            <div class="block open-source">
+              <h3>This book is open source</h3>
+              <p>The source of this book is <a href="https://github.com/jwiegley/git-from-the-bottom-up">hosted on Github</a>. Go, ahead. Check it out.</p>
+            </div>
+          </div>
+
+          <div class="small-text"><small>Made with <a href="http://bitbooks.cc">Bitbooks</a></small></div>
+
+        </div><!-- end footer-wrapper -->
+
+      </footer>
+
+
+    </div><!-- end page-wrapper -->
+
+    <!-- include scripts just before the close of the body tag -->
+    <script src="../themes/hamilton/javascripts/anchor.min.js" type="text/javascript"></script>
+    <script src="../themes/hamilton/javascripts/hamilton.js" type="text/javascript"></script>
+  </body>
+</html>

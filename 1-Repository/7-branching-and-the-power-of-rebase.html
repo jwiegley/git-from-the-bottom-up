@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Branching and the power of rebase | Git from the Bottom Up</title>
+
+    <!-- Styles and fonts -->
+    <link href="../themes/hamilton/stylesheets/hamilton.css" rel="stylesheet" type="text/css" />
+    <link href="../themes/hamilton/stylesheets/syntax.css" rel="stylesheet" type="text/css" />
+
+    <link href='//fonts.googleapis.com/css?family=Crimson+Text:400,400italic,700italic,700' rel='stylesheet' type='text/css'>
+
+    <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+
+    <script src="../themes/hamilton/javascripts/modernizr.js" type="text/javascript"></script>
+  </head>
+
+  <body class="x1-Repository x1-Repository_7-branching-and-the-power-of-rebase hamilton">
+    <div class="page-wrapper">
+
+      <!--[if lt IE 7]>
+          <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+      <![endif]-->
+
+      <header class="page-header" role="banner">
+<a class="invisilink" href="../">            <span class="book-title">Git from the Bottom Up</span>
+</a>        <span class="book-author visuallyhidden">by John Wiegley</span>
+      </header>
+
+      <div class="content-wrapper clearfix">
+        <div class="toc" id="toc">
+          <a href="#" class="toc-title" id="toc-title"><h3>Table of Contents</h3></a>
+          <nav role="navigation" id="toc-nav" style="display: none;">
+            <ul id="toc-list">
+              <li class='child '><a href="../">Introduction</a></li><li class='parent'><span class='parent-label'>1 Repository</span><ul><li class='child '><a href="1-directory-content-tracking.html">Repository: Directory content tracking</a></li><li class='child '><a href="2-introducing-the-blob.html">Introducing the blob</a></li><li class='child '><a href="3-blobs-are-stored-in-trees.html">Blobs are stored in trees</a></li><li class='child '><a href="4-how-trees-are-made.html">How trees are made</a></li><li class='child '><a href="5-the-beauty-of-commits.html">The beauty of commits</a></li><li class='child '><a href="6-a-commit-by-any-other-name.html">A commit by any other name&hellip;</a></li><li class='child active'><a href="7-branching-and-the-power-of-rebase.html">Branching and the power of rebase</a></li><li class='child '><a href="8-interactive-rebasing.html">Interactive rebasing</a></li></ul></li><li class='parent'><span class='parent-label'>2 the Index</span><ul><li class='child '><a href="../2-The-Index/1-meet-the-middle-man.html">The Index: Meet the middle man</a></li><li class='child '><a href="../2-The-Index/2-taking-the-index-further.html">Taking the index further</a></li></ul></li><li class='parent'><span class='parent-label'>3 Reset</span><ul><li class='child '><a href="../3-Reset/1-to-reset-or-not-to-reset.html">To reset, or not to reset</a></li><li class='child '><a href="../3-Reset/2-doing-a-mixed-reset.html">Doing a mixed reset</a></li><li class='child '><a href="../3-Reset/3-doing-a-soft-reset.html">Doing a soft reset</a></li><li class='child '><a href="../3-Reset/4-doing-a-hard-reset.html">Doing a hard reset</a></li></ul></li><li class='child '><a href="../4-Stashing-and-the-reflog.html">Stashing and the reflog</a></li><li class='child '><a href="../5-Conclusion.html">Conclusion</a></li><li class='child '><a href="../6-Further-Reading.html">Further reading</a></li><li class='parent'><span class='parent-label'>Assets</span><ul><li class='parent'><span class='parent-label'>Git From the Bottom up.mellel</span><ul><li class='parent'><span class='parent-label'>Images</span><ul></ul></li></ul></li></ul></li>
+            </ul>
+          </nav>
+        </div>
+        <section class="main-content" role="main">
+          <div class="main-content-source">
+            <h1>Branching and the power of rebase</h1>
+
+<p>One of Git’s most capable commands for manipulating commits is the innocently-named rebase command. Basically, every branch you work from has one or more “base commits”: the commits that branch was born from. Take the following typical scenario, for example. Note that the arrows point back in time because each commit references its parent(s), but not its children. Therefore, the D and Z commits represent the heads of their respective branches:</p>
+
+<p><img alt="Branching" src="../images/branching.png" /></p>
+
+<p>In this case, running branch would show two “heads”: <code>D</code> and <code>Z</code>, with the common parent of both branches being A. The output of show-branch shows us just this information:</p>
+<pre class="highlight shell"><span class="gp">$ </span>git branch
+  Z
+<span class="k">*</span> D
+
+<span class="gp">$ </span>git show-branch
+! <span class="o">[</span>Z] Z
+ <span class="k">*</span> <span class="o">[</span>D] D
+--
+ <span class="k">*</span> <span class="o">[</span>D] D
+ <span class="k">*</span> <span class="o">[</span>D^] C
+ <span class="k">*</span> <span class="o">[</span>D~2] B
++  <span class="o">[</span>Z]Z
++  <span class="o">[</span>Z^]Y
++  <span class="o">[</span>Z~2] X
++  <span class="o">[</span>Z~3] W
++<span class="k">*</span> <span class="o">[</span>D~3] A
+</pre>
+
+<p>Reading this output takes a little getting used to, but essentially it’s no different from the diagram above. Here’s what it tells us:</p>
+
+<ul>
+<li>The branch we’re on experienced its first divergence at commit <code>A</code> (also known as commit <code>D~3</code>, and even <code>Z~4</code> if you feel so inclined). The syntax <code>commit^</code> is used to refer to the parent of a commit, while <code>commit~3</code> refers to its third parent, or great-grandparent.</li>
+<li>Reading from bottom to top, the first column (the plus signs) shows a divergent branch named <code>Z</code> with four commits: <code>W</code>, <code>X</code>, <code>Y</code> and <code>Z</code>.</li>
+<li>The second column (the asterisks) show the commits which happened on the current branch, namely three commits: <code>B</code>, <code>C</code> and <code>D</code>.</li>
+<li>The top of the output, separated from the bottom by a dividing line, identifies the branches displayed, which column their commits are labelled by, and the character used for the labeling.</li>
+</ul>
+
+<p>The action we’d like to perform is to bring the working branch <code>Z</code> back up to speed with the main branch, <code>D</code>. In other words, we want to incorporate the work from <code>B</code>, <code>C</code>, and <code>D</code> into <code>Z</code>.</p>
+
+<p>In other version control systems this sort of thing can only be done using a “branch merge”. In fact, a branch merge can still be done in Git, using <code>merge</code>, and remains needful in the case where <code>Z</code> is a published branch and we don’t want to alter its commit history. Here are the commands to run:</p>
+<pre class="highlight shell"><span class="gp">$ </span>git checkout Z <span class="c"># switch to the Z branch</span>
+<span class="gp">$ </span>git merge D <span class="c"># merge commits B, C and D into Z</span>
+</pre>
+
+<p>This is what the repository looks like afterward:</p>
+
+<p><img alt="Branch Merge" src="../images/branch-merge.png" /></p>
+
+<p>If we checked out the <code>Z</code> branch now, it would contain the contents of the previous <code>Z</code> (now referenceable as <code>Z^</code>), merged with the contents of <code>D</code>. (Though note: a real merge operation would have required resolving any conflicts between the states of <code>D</code> and <code>Z</code>).</p>
+
+<p>Although the new <code>Z</code> now contains the changes from <code>D</code>, it also includes a new commit to represent the merging of <code>Z</code> with <code>D</code>: the commit now shown as <code>Z’</code>. This commit doesn’t add anything new, but represents the work done to bring <code>D</code> and <code>Z</code> together. In a sense it’s a “meta-commit”, because its contents are related to work done solely in the repository, and not to new work done in the working tree.</p>
+
+<p>There is a way, however, to transplant the <code>Z</code> branch straight onto <code>D</code>, effectively moving it forward in time: by using the powerful rebase command. Here’s the graph we’re aiming for:</p>
+
+<p><img alt="Rebase" src="../images/rebase.png" /></p>
+
+<p>This state of affairs most directly represents what we’d like done: for our local, development branch <code>Z</code> to be based on the latest work in the main branch <code>D</code>. That’s why the command is called “rebase”, because it changes the base commit of the branch it’s run from. If you run it repeatedly, you can carry forward a set of patches indefinitely, always staying up-to-date with the main branch, but without adding unnecessary merge commits to your development branch. Here are the commands to run, compared to the merge operation performed above:</p>
+<pre class="highlight shell"><span class="gp">$ </span>git checkout Z <span class="c"># switch to the Z branch</span>
+<span class="gp">$ </span>git rebase D <span class="c"># change Z’s base commit to point to D</span>
+</pre>
+
+<p>Why is this only for local branches? Because every time you rebase, you’re potentially changing every commit in the branch. Earlier, when <code>W</code> was based on <code>A</code>, it contained only the changes needed to transform <code>A</code> into <code>W</code>. After running rebase, however, <code>W</code> will be rewritten to contain the changes necessary to transform <code>D</code> into <code>W’</code>. Even the transformation from <code>W</code> to <code>X</code> is changed, because <code>A+W+X</code> is now <code>D+W’+X’</code> — and so on. If this were a branch whose changes are seen by other people, and any of your downstream consumers had created their own local branches off of <code>Z</code>, their branches would now point to the old <code>Z</code>, not the new <code>Z’</code>.</p>
+
+<p>Generally, the following rule of thumb can be used: Use rebase if you have a local branch with no other branches that have branched off from it, and use merge for all other cases. merge is also useful when you’re ready to pull your local branch’s changes back into the main branch.</p>
+
+          </div>
+          <nav class="main-content-nav clearfix" role="navigation">
+            <ul class="clearfix">
+              <li><a class="previous" href="6-a-commit-by-any-other-name.html">Previous</a></li>
+                <li><a class="next" href="8-interactive-rebasing.html">Next</a></li>
+            </ul>
+          </nav>
+        </section>
+
+        </div><!-- end content-wrapper -->
+
+      <footer class="page-footer">
+
+        <div class="footer-wrapper clearfix" role="complementary">
+          <!--
+          <div class="block-pair clearfix">
+            <div class="block downloads">
+              <h3>Downloads</h3>
+              <p>Download this book in
+                  <a href="#">PDF</a>, <a href="#">mobi</a>, and <a href="#">epub</a>
+                form for free.
+              </p>
+            </div>
+
+            <div class="block translations">
+              <h3>Book translations</h3>
+              <p>This book is translated into
+                <a href="#">Spanish</a>
+                and <a href="#">English</a>.
+                You can help with more translations <a href="https://github.com/jwiegley/git-from-the-bottom-up">on Github</a>.
+              </p>
+            </div>
+          </div>
+          -->
+          <div class="block-pair clearfix">
+            <div class="block license">
+              <h3>License</h3>
+              <p>This book is licensed under the <a href="https://creativecommons.org/licenses/by-nd/4.0">Attribution-NoDerivs</a> license.</p>
+            </div>
+            <div class="block open-source">
+              <h3>This book is open source</h3>
+              <p>The source of this book is <a href="https://github.com/jwiegley/git-from-the-bottom-up">hosted on Github</a>. Go, ahead. Check it out.</p>
+            </div>
+          </div>
+
+          <div class="small-text"><small>Made with <a href="http://bitbooks.cc">Bitbooks</a></small></div>
+
+        </div><!-- end footer-wrapper -->
+
+      </footer>
+
+
+    </div><!-- end page-wrapper -->
+
+    <!-- include scripts just before the close of the body tag -->
+    <script src="../themes/hamilton/javascripts/anchor.min.js" type="text/javascript"></script>
+    <script src="../themes/hamilton/javascripts/hamilton.js" type="text/javascript"></script>
+  </body>
+</html>

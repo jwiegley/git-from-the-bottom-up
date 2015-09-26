@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Taking the index further | Git from the Bottom Up</title>
+
+    <!-- Styles and fonts -->
+    <link href="../themes/hamilton/stylesheets/hamilton.css" rel="stylesheet" type="text/css" />
+    <link href="../themes/hamilton/stylesheets/syntax.css" rel="stylesheet" type="text/css" />
+
+    <link href='//fonts.googleapis.com/css?family=Crimson+Text:400,400italic,700italic,700' rel='stylesheet' type='text/css'>
+
+    <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+
+    <script src="../themes/hamilton/javascripts/modernizr.js" type="text/javascript"></script>
+  </head>
+
+  <body class="x2-The-Index x2-The-Index_2-taking-the-index-further hamilton">
+    <div class="page-wrapper">
+
+      <!--[if lt IE 7]>
+          <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+      <![endif]-->
+
+      <header class="page-header" role="banner">
+<a class="invisilink" href="../">            <span class="book-title">Git from the Bottom Up</span>
+</a>        <span class="book-author visuallyhidden">by John Wiegley</span>
+      </header>
+
+      <div class="content-wrapper clearfix">
+        <div class="toc" id="toc">
+          <a href="#" class="toc-title" id="toc-title"><h3>Table of Contents</h3></a>
+          <nav role="navigation" id="toc-nav" style="display: none;">
+            <ul id="toc-list">
+              <li class='child '><a href="../">Introduction</a></li><li class='parent'><span class='parent-label'>1 Repository</span><ul><li class='child '><a href="../1-Repository/1-directory-content-tracking.html">Repository: Directory content tracking</a></li><li class='child '><a href="../1-Repository/2-introducing-the-blob.html">Introducing the blob</a></li><li class='child '><a href="../1-Repository/3-blobs-are-stored-in-trees.html">Blobs are stored in trees</a></li><li class='child '><a href="../1-Repository/4-how-trees-are-made.html">How trees are made</a></li><li class='child '><a href="../1-Repository/5-the-beauty-of-commits.html">The beauty of commits</a></li><li class='child '><a href="../1-Repository/6-a-commit-by-any-other-name.html">A commit by any other name&hellip;</a></li><li class='child '><a href="../1-Repository/7-branching-and-the-power-of-rebase.html">Branching and the power of rebase</a></li><li class='child '><a href="../1-Repository/8-interactive-rebasing.html">Interactive rebasing</a></li></ul></li><li class='parent'><span class='parent-label'>2 the Index</span><ul><li class='child '><a href="1-meet-the-middle-man.html">The Index: Meet the middle man</a></li><li class='child active'><a href="2-taking-the-index-further.html">Taking the index further</a></li></ul></li><li class='parent'><span class='parent-label'>3 Reset</span><ul><li class='child '><a href="../3-Reset/1-to-reset-or-not-to-reset.html">To reset, or not to reset</a></li><li class='child '><a href="../3-Reset/2-doing-a-mixed-reset.html">Doing a mixed reset</a></li><li class='child '><a href="../3-Reset/3-doing-a-soft-reset.html">Doing a soft reset</a></li><li class='child '><a href="../3-Reset/4-doing-a-hard-reset.html">Doing a hard reset</a></li></ul></li><li class='child '><a href="../4-Stashing-and-the-reflog.html">Stashing and the reflog</a></li><li class='child '><a href="../5-Conclusion.html">Conclusion</a></li><li class='child '><a href="../6-Further-Reading.html">Further reading</a></li><li class='parent'><span class='parent-label'>Assets</span><ul><li class='parent'><span class='parent-label'>Git From the Bottom up.mellel</span><ul><li class='parent'><span class='parent-label'>Images</span><ul></ul></li></ul></li></ul></li>
+            </ul>
+          </nav>
+        </div>
+        <section class="main-content" role="main">
+          <div class="main-content-source">
+            <h1>Taking the index further</h1>
+
+<p>Let’s see, the index&hellip; With it you can pre-stage a set of changes, thus iteratively building up a patch before committing it to the repository. Now, where have I heard that concept before&hellip;</p>
+
+<p>If you’re thinking “Quilt!”, you’re exactly right. In fact, the index is little different from Quilt, it just adds the restriction of allowing only one patch to be constructed at a time.</p>
+
+<p>But what if, instead of two sets of changes within <code>foo.c</code>, I had four? With plain Git, I’d have to tease each one out, commit it, and then tease out the next. This is made much easier using the index, but what if I wanted to test those changes in various combinations with each other before checking them in? That is, if I labelled the patches A, B, C and D, what if I wanted to test A + B, then A + C, then A + D, etc., before deciding if any of the changes were truly complete?</p>
+
+<p>There is no mechanism in Git itself that allows you to mix and match parallel sets of changes on the fly. Sure, multiple branches can let you do parallel development, and the index lets you stage multiple changes into a series of commits, but you can’t do both at once: staging a series of patches while at the same time selectively enabling and disabling some of them, to verify the integrity of the patches in concert before finally committing them.
+What you’d need to do something like this is an index which allows for greater depth than one commit at a time. This is exactly what Stacked Git provides.</p>
+
+<p>Here’s how I’d commit two different patches into my working tree using plain Git:</p>
+<pre class="highlight shell"><span class="gp">$ </span>git add -i <span class="c"># select first set of changes</span>
+<span class="gp">$ </span>git commit -m <span class="s2">"First commit message"</span>
+<span class="gp">$ </span>git add -i <span class="c"># select second set of changes</span>
+<span class="gp">$ </span>git commit -m <span class="s2">"Second commit message"</span>
+</pre>
+
+<p>This works great, but I can’t selectively disable the first commit in order to test the second one alone. To do that, I’d have to do the following:</p>
+<pre class="highlight shell"><span class="gp">$ </span>git log <span class="c"># find the hash id of the first commit</span>
+<span class="gp">$ </span>git checkout -b work &lt;first commit’s <span class="nb">hash </span>id&gt;
+<span class="gp">$ </span>git cherry-pick &lt;second commit’s <span class="nb">hash </span>id&gt;
+&lt;... run tests ...&gt;
+<span class="gp">$ </span>git checkout master <span class="c"># go back to the master "branch"</span>
+<span class="gp">$ </span>git branch -D work <span class="c"># remove my temporary branch</span>
+</pre>
+
+<p>Surely there has to be a better way! With <code>stg</code> I can queue up both patches and then re-apply them in whatever order I like, for independent or combined testing, etc. Here’s how I’d queue the same two patches from the previous example, using <code>stg</code>:</p>
+<pre class="highlight shell"><span class="gp">$ </span>stg new patch1
+<span class="gp">$ </span>git add -i  <span class="c"># select first set of changes</span>
+<span class="gp">$ </span>stg refresh --index
+<span class="gp">$ </span>stg new patch2
+<span class="gp">$ </span>git add -i  <span class="c"># select second set of changes</span>
+<span class="gp">$ </span>stg refresh --index
+</pre>
+
+<p>Now if I want to selectively disable the first patch to test only the second, it’s very straightforward:</p>
+<pre class="highlight shell"><span class="gp">$ </span>stg applied
+patch1
+patch2
+&lt;...  <span class="k">do </span>tests using both patches ...&gt;
+<span class="gp">$ </span>stg pop patch1
+&lt;...  <span class="k">do </span>tests using only patch2 ...&gt;
+<span class="gp">$ </span>stg pop patch2
+<span class="gp">$ </span>stg push patch1
+&lt;...  <span class="k">do </span>tests using only patch1 ...&gt;
+<span class="gp">$ </span>stg push -a
+<span class="gp">$ </span>stg commit -a  <span class="c"># commit all the patches</span>
+</pre>
+
+<p>This is definitely easier than creating temporary branches and using <code>cherry-pick</code> to apply specific commit ids, followed by deleting the temporary branch.</p>
+
+          </div>
+          <nav class="main-content-nav clearfix" role="navigation">
+            <ul class="clearfix">
+              <li><a class="previous" href="1-meet-the-middle-man.html">Previous</a></li>
+                <li><a class="next" href="../3-Reset/1-to-reset-or-not-to-reset.html">Next</a></li>
+            </ul>
+          </nav>
+        </section>
+
+        </div><!-- end content-wrapper -->
+
+      <footer class="page-footer">
+
+        <div class="footer-wrapper clearfix" role="complementary">
+          <!--
+          <div class="block-pair clearfix">
+            <div class="block downloads">
+              <h3>Downloads</h3>
+              <p>Download this book in
+                  <a href="#">PDF</a>, <a href="#">mobi</a>, and <a href="#">epub</a>
+                form for free.
+              </p>
+            </div>
+
+            <div class="block translations">
+              <h3>Book translations</h3>
+              <p>This book is translated into
+                <a href="#">Spanish</a>
+                and <a href="#">English</a>.
+                You can help with more translations <a href="https://github.com/jwiegley/git-from-the-bottom-up">on Github</a>.
+              </p>
+            </div>
+          </div>
+          -->
+          <div class="block-pair clearfix">
+            <div class="block license">
+              <h3>License</h3>
+              <p>This book is licensed under the <a href="https://creativecommons.org/licenses/by-nd/4.0">Attribution-NoDerivs</a> license.</p>
+            </div>
+            <div class="block open-source">
+              <h3>This book is open source</h3>
+              <p>The source of this book is <a href="https://github.com/jwiegley/git-from-the-bottom-up">hosted on Github</a>. Go, ahead. Check it out.</p>
+            </div>
+          </div>
+
+          <div class="small-text"><small>Made with <a href="http://bitbooks.cc">Bitbooks</a></small></div>
+
+        </div><!-- end footer-wrapper -->
+
+      </footer>
+
+
+    </div><!-- end page-wrapper -->
+
+    <!-- include scripts just before the close of the body tag -->
+    <script src="../themes/hamilton/javascripts/anchor.min.js" type="text/javascript"></script>
+    <script src="../themes/hamilton/javascripts/hamilton.js" type="text/javascript"></script>
+  </body>
+</html>

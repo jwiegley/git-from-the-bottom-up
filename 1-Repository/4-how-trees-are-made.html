@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>How trees are made | Git from the Bottom Up</title>
+
+    <!-- Styles and fonts -->
+    <link href="../themes/hamilton/stylesheets/hamilton.css" rel="stylesheet" type="text/css" />
+    <link href="../themes/hamilton/stylesheets/syntax.css" rel="stylesheet" type="text/css" />
+
+    <link href='//fonts.googleapis.com/css?family=Crimson+Text:400,400italic,700italic,700' rel='stylesheet' type='text/css'>
+
+    <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+
+    <script src="../themes/hamilton/javascripts/modernizr.js" type="text/javascript"></script>
+  </head>
+
+  <body class="x1-Repository x1-Repository_4-how-trees-are-made hamilton">
+    <div class="page-wrapper">
+
+      <!--[if lt IE 7]>
+          <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+      <![endif]-->
+
+      <header class="page-header" role="banner">
+<a class="invisilink" href="../">            <span class="book-title">Git from the Bottom Up</span>
+</a>        <span class="book-author visuallyhidden">by John Wiegley</span>
+      </header>
+
+      <div class="content-wrapper clearfix">
+        <div class="toc" id="toc">
+          <a href="#" class="toc-title" id="toc-title"><h3>Table of Contents</h3></a>
+          <nav role="navigation" id="toc-nav" style="display: none;">
+            <ul id="toc-list">
+              <li class='child '><a href="../">Introduction</a></li><li class='parent'><span class='parent-label'>1 Repository</span><ul><li class='child '><a href="1-directory-content-tracking.html">Repository: Directory content tracking</a></li><li class='child '><a href="2-introducing-the-blob.html">Introducing the blob</a></li><li class='child '><a href="3-blobs-are-stored-in-trees.html">Blobs are stored in trees</a></li><li class='child active'><a href="4-how-trees-are-made.html">How trees are made</a></li><li class='child '><a href="5-the-beauty-of-commits.html">The beauty of commits</a></li><li class='child '><a href="6-a-commit-by-any-other-name.html">A commit by any other name&hellip;</a></li><li class='child '><a href="7-branching-and-the-power-of-rebase.html">Branching and the power of rebase</a></li><li class='child '><a href="8-interactive-rebasing.html">Interactive rebasing</a></li></ul></li><li class='parent'><span class='parent-label'>2 the Index</span><ul><li class='child '><a href="../2-The-Index/1-meet-the-middle-man.html">The Index: Meet the middle man</a></li><li class='child '><a href="../2-The-Index/2-taking-the-index-further.html">Taking the index further</a></li></ul></li><li class='parent'><span class='parent-label'>3 Reset</span><ul><li class='child '><a href="../3-Reset/1-to-reset-or-not-to-reset.html">To reset, or not to reset</a></li><li class='child '><a href="../3-Reset/2-doing-a-mixed-reset.html">Doing a mixed reset</a></li><li class='child '><a href="../3-Reset/3-doing-a-soft-reset.html">Doing a soft reset</a></li><li class='child '><a href="../3-Reset/4-doing-a-hard-reset.html">Doing a hard reset</a></li></ul></li><li class='child '><a href="../4-Stashing-and-the-reflog.html">Stashing and the reflog</a></li><li class='child '><a href="../5-Conclusion.html">Conclusion</a></li><li class='child '><a href="../6-Further-Reading.html">Further reading</a></li><li class='parent'><span class='parent-label'>Assets</span><ul><li class='parent'><span class='parent-label'>Git From the Bottom up.mellel</span><ul><li class='parent'><span class='parent-label'>Images</span><ul></ul></li></ul></li></ul></li>
+            </ul>
+          </nav>
+        </div>
+        <section class="main-content" role="main">
+          <div class="main-content-source">
+            <h1>How trees are made</h1>
+
+<p>Every commit holds a single tree, but how are trees made? We know that blobs are created by stuffing the contents of your files into blobs — and that trees own blobs — but we haven’t yet seen how the tree that holds the blob is made, or how that tree gets linked to its parent commit.</p>
+
+<p>Let’s start with a new sample repository again, but this time by doing things manually, so you can get a feeling for exactly what’s happening under the hood:</p>
+<pre class="highlight shell"><span class="gp">$ </span>rm -fr greeting .git
+<span class="gp">$ </span><span class="nb">echo</span> <span class="s1">'Hello, world!'</span> &gt; greeting
+<span class="gp">$ </span>git init
+<span class="gp">$ </span>git add greeting
+</pre>
+
+<p>It all starts when you first add a file to the index. For now, let’s just say that the index is what you use to initially create blobs out of files. When I added the file <code>greeting</code>, a change occurred in my repository. I can’t see this change as a commit yet, but here is one way I can tell what happened:</p>
+<pre class="highlight shell"><span class="gp">$ </span>git log <span class="c"># this will fail, there are no commits!</span>
+fatal: bad default revision <span class="s1">'HEAD'</span>
+<span class="gp">$ </span>git ls-files --stage <span class="c"># list blob referenced by the index</span>
+100644 af5626b4a114abcb82d63db7c8082c3c4756e51b 0 greeting
+</pre>
+
+<p>What’s this? I haven’t committed anything to the repository yet, but already an object has come into being. It has the same hash id I started this whole business with, so I know it represents the contents of my <code>greeting</code> file. I could use <code>cat-file -t</code> at this point on the hash id, and I’d see that it was a blob. It is, in fact, the same blob I got the first time I created this sample repository. The same file will always result in the same blob (just in case I haven’t stressed that enough).</p>
+
+<p>This blob isn’t referenced by a tree yet, nor are there any commits. At the moment it is only referenced from a file named <code>.git/index</code>, which references the blobs and trees that make up the current index. So now let’s make a tree in the repo for our blob to hang off of:</p>
+<pre class="highlight shell"><span class="gp">$ </span>git write-tree <span class="c"># record the contents of the index in a tree</span>
+0563f77d884e4f79ce95117e2d686d7d6e282887
+</pre>
+
+<p>This number should look familiar as well: a tree containing the same blobs (and sub-trees) will always have the same hash id. I don’t have a commit object yet, but now there is a tree object in that repository which holds the blob. The purpose of the low-level <code>write-tree</code> command is to take whatever the contents of the index are and tuck them into a new tree for the purpose of creating a commit.</p>
+
+<p>I can manually make a new commit object by using this tree directly, which is just what the <code>commit-tree</code> command does:</p>
+<pre class="highlight shell"><span class="gp">$ </span><span class="nb">echo</span> <span class="s2">"Initial commit"</span> | git commit-tree 0563f77
+5f1bc85745dcccce6121494fdd37658cb4ad441f
+</pre>
+
+<p>The raw <code>commit-tree</code> command takes a tree’s hash id and makes a commit object to hold it. If I had wanted the commit to have a parent, I would have had to specify the parent commit’s hash id explicitly using the <code>-p</code> option. Also, note here that the hash id differs from what will appear on your system: This is because my commit object refers to both my name, and the date at which I created the commit, and these two details will always be different from yours.</p>
+
+<p>Our work is not done yet, though, since I haven’t registered the commit as the new head of a branch:</p>
+<pre class="highlight shell"><span class="gp">$ </span><span class="nb">echo </span>5f1bc85745dcccce6121494fdd37658cb4ad441f &gt; .git/refs/heads/master
+</pre>
+
+<p>This command tells Git that the branch name “master” should now refer to our recent commit. Another, much safer way to do this is by using the command <code>update-ref</code>:</p>
+<pre class="highlight shell"><span class="gp">$ </span>git update-ref refs/heads/master 5f1bc857
+</pre>
+
+<p>After creating <code>master</code>, we must associate our working tree with it. Normally this happens for you whenever you check out a branch:</p>
+<pre class="highlight shell"><span class="gp">$ </span>git symbolic-ref HEAD refs/heads/master
+</pre>
+
+<p>This command associates HEAD symbolically with the master branch. This is significant because any future commits from the working tree will now automatically update the value of <code>refs/heads/master</code>.</p>
+
+<p>It’s hard to believe it’s this simple, but yes, I can now use log to view my newly minted commit:</p>
+<pre class="highlight shell"><span class="gp">$ </span>git log
+commit 5f1bc85745dcccce6121494fdd37658cb4ad441f
+Author: John Wiegley &lt;johnw@newartisans.com&gt;
+Date:   Mon Apr 14 11:14:58 2008 -0400
+        Initial commit
+</pre>
+
+<p>A side note: if I hadn’t set <code>refs/heads/master</code> to point to the new commit, it would have been considered “unreachable”, since nothing currently refers to it nor is it the parent of a reachable commit. When this is the case, the commit object will at some point be removed from the repository, along with its tree and all its blobs. (This happens automatically by a command called <code>gc</code>, which you rarely need to use manually). By linking the commit to a name within <code>refs/heads</code>, as we did above, it becomes a reachable commit, which ensures that it’s kept around from now on.</p>
+
+          </div>
+          <nav class="main-content-nav clearfix" role="navigation">
+            <ul class="clearfix">
+              <li><a class="previous" href="3-blobs-are-stored-in-trees.html">Previous</a></li>
+                <li><a class="next" href="5-the-beauty-of-commits.html">Next</a></li>
+            </ul>
+          </nav>
+        </section>
+
+        </div><!-- end content-wrapper -->
+
+      <footer class="page-footer">
+
+        <div class="footer-wrapper clearfix" role="complementary">
+          <!--
+          <div class="block-pair clearfix">
+            <div class="block downloads">
+              <h3>Downloads</h3>
+              <p>Download this book in
+                  <a href="#">PDF</a>, <a href="#">mobi</a>, and <a href="#">epub</a>
+                form for free.
+              </p>
+            </div>
+
+            <div class="block translations">
+              <h3>Book translations</h3>
+              <p>This book is translated into
+                <a href="#">Spanish</a>
+                and <a href="#">English</a>.
+                You can help with more translations <a href="https://github.com/jwiegley/git-from-the-bottom-up">on Github</a>.
+              </p>
+            </div>
+          </div>
+          -->
+          <div class="block-pair clearfix">
+            <div class="block license">
+              <h3>License</h3>
+              <p>This book is licensed under the <a href="https://creativecommons.org/licenses/by-nd/4.0">Attribution-NoDerivs</a> license.</p>
+            </div>
+            <div class="block open-source">
+              <h3>This book is open source</h3>
+              <p>The source of this book is <a href="https://github.com/jwiegley/git-from-the-bottom-up">hosted on Github</a>. Go, ahead. Check it out.</p>
+            </div>
+          </div>
+
+          <div class="small-text"><small>Made with <a href="http://bitbooks.cc">Bitbooks</a></small></div>
+
+        </div><!-- end footer-wrapper -->
+
+      </footer>
+
+
+    </div><!-- end page-wrapper -->
+
+    <!-- include scripts just before the close of the body tag -->
+    <script src="../themes/hamilton/javascripts/anchor.min.js" type="text/javascript"></script>
+    <script src="../themes/hamilton/javascripts/hamilton.js" type="text/javascript"></script>
+  </body>
+</html>

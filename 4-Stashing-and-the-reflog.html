@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Stashing and the reflog | Git from the Bottom Up</title>
+
+    <!-- Styles and fonts -->
+    <link href="themes/hamilton/stylesheets/hamilton.css" rel="stylesheet" type="text/css" />
+    <link href="themes/hamilton/stylesheets/syntax.css" rel="stylesheet" type="text/css" />
+
+    <link href='//fonts.googleapis.com/css?family=Crimson+Text:400,400italic,700italic,700' rel='stylesheet' type='text/css'>
+
+    <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+
+    <script src="themes/hamilton/javascripts/modernizr.js" type="text/javascript"></script>
+  </head>
+
+  <body class="x4-Stashing-and-the-reflog hamilton">
+    <div class="page-wrapper">
+
+      <!--[if lt IE 7]>
+          <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+      <![endif]-->
+
+      <header class="page-header" role="banner">
+<a class="invisilink" href="./">            <span class="book-title">Git from the Bottom Up</span>
+</a>        <span class="book-author visuallyhidden">by John Wiegley</span>
+      </header>
+
+      <div class="content-wrapper clearfix">
+        <div class="toc" id="toc">
+          <a href="#" class="toc-title" id="toc-title"><h3>Table of Contents</h3></a>
+          <nav role="navigation" id="toc-nav" style="display: none;">
+            <ul id="toc-list">
+              <li class='child '><a href="./">Introduction</a></li><li class='parent'><span class='parent-label'>1 Repository</span><ul><li class='child '><a href="1-Repository/1-directory-content-tracking.html">Repository: Directory content tracking</a></li><li class='child '><a href="1-Repository/2-introducing-the-blob.html">Introducing the blob</a></li><li class='child '><a href="1-Repository/3-blobs-are-stored-in-trees.html">Blobs are stored in trees</a></li><li class='child '><a href="1-Repository/4-how-trees-are-made.html">How trees are made</a></li><li class='child '><a href="1-Repository/5-the-beauty-of-commits.html">The beauty of commits</a></li><li class='child '><a href="1-Repository/6-a-commit-by-any-other-name.html">A commit by any other name&hellip;</a></li><li class='child '><a href="1-Repository/7-branching-and-the-power-of-rebase.html">Branching and the power of rebase</a></li><li class='child '><a href="1-Repository/8-interactive-rebasing.html">Interactive rebasing</a></li></ul></li><li class='parent'><span class='parent-label'>2 the Index</span><ul><li class='child '><a href="2-The-Index/1-meet-the-middle-man.html">The Index: Meet the middle man</a></li><li class='child '><a href="2-The-Index/2-taking-the-index-further.html">Taking the index further</a></li></ul></li><li class='parent'><span class='parent-label'>3 Reset</span><ul><li class='child '><a href="3-Reset/1-to-reset-or-not-to-reset.html">To reset, or not to reset</a></li><li class='child '><a href="3-Reset/2-doing-a-mixed-reset.html">Doing a mixed reset</a></li><li class='child '><a href="3-Reset/3-doing-a-soft-reset.html">Doing a soft reset</a></li><li class='child '><a href="3-Reset/4-doing-a-hard-reset.html">Doing a hard reset</a></li></ul></li><li class='child active'><a href="4-Stashing-and-the-reflog.html">Stashing and the reflog</a></li><li class='child '><a href="5-Conclusion.html">Conclusion</a></li><li class='child '><a href="6-Further-Reading.html">Further reading</a></li><li class='parent'><span class='parent-label'>Assets</span><ul><li class='parent'><span class='parent-label'>Git From the Bottom up.mellel</span><ul><li class='parent'><span class='parent-label'>Images</span><ul></ul></li></ul></li></ul></li>
+            </ul>
+          </nav>
+        </div>
+        <section class="main-content" role="main">
+          <div class="main-content-source">
+            <h1>Stashing and the reflog</h1>
+
+<p>Until now we’ve described two ways in which blobs find their way into Git: first they’re created in your index, both without a parent tree and without an owning commit; and then they’re committed into the repository, where they live as leaves hanging off of the tree held by that commit. But there are two other ways a blob can dwell in your repository.</p>
+
+<p>The first of these is the Git <code>reflog</code>, a kind of meta-repository that records — in the form of commits — every change you make to your repository. This means that when you create a tree from your index and store it under a commit (all of which is done by <code>commit</code>), you are also inadvertently adding that commit to the reflog, which can be viewed using the following command:</p>
+<pre class="highlight shell"><span class="gp">$ </span>git reflog
+5f1bc85...  HEAD@<span class="o">{</span>0<span class="o">}</span>: commit <span class="o">(</span>initial<span class="o">)</span>: Initial commit
+</pre>
+
+<p>The beauty of the reflog is that it persists independently of other changes in your repository. This means I could unlink the above commit from my repository (using <code>reset</code>), yet it would still be referenced by the reflog for another 30 days, protecting it from garbage collection. This gives me a month’s chance to recover the commit should I discover I really need it.</p>
+
+<p>The other place blobs can exist, albeit indirectly, is in your working tree itself. What I mean is, say you’ve changed a file <code>foo.c</code> but you haven’t added those changes to the index yet. Git may not have created a blob for you, but those changes do exist, meaning the content exists — it just lives in your filesystem instead of Git’s repository. The file even has its own SHA1 hash id, despite the fact no real blob exists. You can view it with this command:</p>
+<pre class="highlight shell"><span class="gp">$ </span>git <span class="nb">hash</span>-object foo.c
+&lt;some <span class="nb">hash </span>id&gt;
+</pre>
+
+<p>What does this do for you? Well, if you find yourself hacking away on your working tree and you reach the end of a long day, a good habit to get into is to stash away your changes:</p>
+<pre class="highlight shell"><span class="gp">$ </span>git stash
+</pre>
+
+<p>This takes all your directory’s contents — including both your working tree, and the state of the index — and creates blobs for them in the git repository, a tree to hold those blobs, and a pair of stash commits to hold the working tree and index and record the time when you did the stash.</p>
+
+<p>This is a good practice because, although the next day you’ll just pull your changes back out of the stash with <code>stash apply</code>, you’ll have a reflog of all your stashed changes at the end of every day. Here’s what you’d do after coming back to work the next morning (WIP here stands for “Work in progress”):</p>
+<pre class="highlight shell"><span class="gp">$ </span>git stash list
+stash@<span class="o">{</span>0<span class="o">}</span>: WIP on master: 5f1bc85...  Initial commit
+
+<span class="gp">$ </span>git reflog show stash <span class="c"># same output, plus the stash commit's hash id 2add13e... stash@{0}: WIP on master: 5f1bc85... Initial commit</span>
+
+<span class="gp">$ </span>git stash apply
+</pre>
+
+<p>Because your stashed working tree is stored under a commit, you can work with it like any other branch — at any time! This means you can view the log, see when you stashed it, and checkout any of your past working trees from the moment when you stashed them:</p>
+<pre class="highlight shell"><span class="gp">$ </span>git stash list
+stash@<span class="o">{</span>0<span class="o">}</span>: WIP on master: 73ab4c1...  Initial commit
+...
+stash@<span class="o">{</span>32<span class="o">}</span>: WIP on master: 5f1bc85...  Initial commit
+<span class="gp">$ </span>git log stash@<span class="o">{</span>32<span class="o">}</span>  <span class="c"># when did I do it?</span>
+<span class="gp">$ </span>git show stash@<span class="o">{</span>32<span class="o">}</span>  <span class="c"># show me what I was working on</span>
+<span class="gp">$ </span>git checkout -b temp stash@<span class="o">{</span>32<span class="o">}</span>  <span class="c"># let’s see that old working tree!</span>
+</pre>
+
+<p>This last command is particularly powerful: behold, I’m now playing around in an uncommitted working tree from over a month ago. I never even added those files to the index; I just used the simple expedient of calling <code>stash</code> before logging out each day (provided you actually had changes in your working tree to stash), and used <code>stash apply</code> when I logged back in.</p>
+
+<p>If you ever want to clean up your stash list — say to keep only the last 30 days of activity — don’t use <code>stash clear</code>; use the <code>reflog expire</code> command instead:</p>
+<pre class="highlight shell"><span class="gp">$ </span>git stash clear  <span class="c"># DON'T! You'll lose all that history</span>
+<span class="gp">$ </span>git reflog expire --expire<span class="o">=</span>30.days refs/stash
+&lt;outputs the stash bundles that<span class="s1">'ve been kept&gt;
+</span></pre>
+
+<p>The beauty of <code>stash</code> is that it lets you apply unobtrusive version control to your working process itself: namely, the various stages of your working tree from day to day. You can even use <code>stash</code> on a regular basis if you like, with something like the following <code>snapshot</code> script:</p>
+<pre class="highlight shell"><span class="gp">$ </span>cat <span class="sh">&lt;&lt;EOF &gt; /usr/local/bin/git-snapshot
+#!/bin/sh
+git stash &amp;&amp; git stash apply
+EOF
+</span><span class="gp">$ </span>chmod +x <span class="nv">$_</span>
+<span class="gp">$ </span>git snapshot
+</pre>
+
+<p>There’s no reason you couldn’t run this from a <code>cron</code> job every hour, along with running the <code>reflog expire</code> command every week or month.</p>
+
+          </div>
+          <nav class="main-content-nav clearfix" role="navigation">
+            <ul class="clearfix">
+              <li><a class="previous" href="3-Reset/4-doing-a-hard-reset.html">Previous</a></li>
+                <li><a class="next" href="5-Conclusion.html">Next</a></li>
+            </ul>
+          </nav>
+        </section>
+
+        </div><!-- end content-wrapper -->
+
+      <footer class="page-footer">
+
+        <div class="footer-wrapper clearfix" role="complementary">
+          <!--
+          <div class="block-pair clearfix">
+            <div class="block downloads">
+              <h3>Downloads</h3>
+              <p>Download this book in
+                  <a href="#">PDF</a>, <a href="#">mobi</a>, and <a href="#">epub</a>
+                form for free.
+              </p>
+            </div>
+
+            <div class="block translations">
+              <h3>Book translations</h3>
+              <p>This book is translated into
+                <a href="#">Spanish</a>
+                and <a href="#">English</a>.
+                You can help with more translations <a href="https://github.com/jwiegley/git-from-the-bottom-up">on Github</a>.
+              </p>
+            </div>
+          </div>
+          -->
+          <div class="block-pair clearfix">
+            <div class="block license">
+              <h3>License</h3>
+              <p>This book is licensed under the <a href="https://creativecommons.org/licenses/by-nd/4.0">Attribution-NoDerivs</a> license.</p>
+            </div>
+            <div class="block open-source">
+              <h3>This book is open source</h3>
+              <p>The source of this book is <a href="https://github.com/jwiegley/git-from-the-bottom-up">hosted on Github</a>. Go, ahead. Check it out.</p>
+            </div>
+          </div>
+
+          <div class="small-text"><small>Made with <a href="http://bitbooks.cc">Bitbooks</a></small></div>
+
+        </div><!-- end footer-wrapper -->
+
+      </footer>
+
+
+    </div><!-- end page-wrapper -->
+
+    <!-- include scripts just before the close of the body tag -->
+    <script src="themes/hamilton/javascripts/anchor.min.js" type="text/javascript"></script>
+    <script src="themes/hamilton/javascripts/hamilton.js" type="text/javascript"></script>
+  </body>
+</html>
