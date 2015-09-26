@@ -14,8 +14,10 @@ $ git add greeting
 It all starts when you first add a file to the index. For now, let’s just say that the index is what you use to initially create blobs out of files. When I added the file `greeting`, a change occurred in my repository. I can’t see this change as a commit yet, but here is one way I can tell what happened:
 
 ```bash
-$ git log # this will fail, there are no commits! fatal: bad default revision 'HEAD'
-$ git ls-files --stage # list blob referenced by the index 100644 af5626b4a114abcb82d63db7c8082c3c4756e51b 0 greeting
+$ git log # this will fail, there are no commits!
+fatal: bad default revision 'HEAD'
+$ git ls-files --stage # list blob referenced by the index
+100644 af5626b4a114abcb82d63db7c8082c3c4756e51b 0 greeting
 ```
 
 What’s this? I haven’t committed anything to the repository yet, but already an object has come into being. It has the same hash id I started this whole business with, so I know it represents the contents of my `greeting` file. I could use `cat-file -t` at this point on the hash id, and I’d see that it was a blob. It is, in fact, the same blob I got the first time I created this sample repository. The same file will always result in the same blob (just in case I haven’t stressed that enough).
@@ -23,7 +25,8 @@ What’s this? I haven’t committed anything to the repository yet, but already
 This blob isn’t referenced by a tree yet, nor are there any commits. At the moment it is only referenced from a file named `.git/index`, which references the blobs and trees that make up the current index. So now let’s make a tree in the repo for our blob to hang off of:
 
 ```bash
-$ git write-tree # record the contents of the index in a tree 0563f77d884e4f79ce95117e2d686d7d6e282887
+$ git write-tree # record the contents of the index in a tree
+0563f77d884e4f79ce95117e2d686d7d6e282887
 ```
 
 This number should look familiar as well: a tree containing the same blobs (and sub-trees) will always have the same hash id. I don’t have a commit object yet, but now there is a tree object in that repository which holds the blob. The purpose of the low-level `write-tree` command is to take whatever the contents of the index are and tuck them into a new tree for the purpose of creating a commit.
