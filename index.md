@@ -27,3 +27,5 @@ The usual flow of events is this: After creating a repository, your work is done
 ![Project Lifecycle](images/lifecycle.png)
 
 With this basic picture in mind, the following sections shall attempt to describe how each of these different entities is important to the operation of Git.
+
+**LICENSE**: This document is licensed under the [Creative Commons BY 4.0 license](https://creativecommons.org/licenses/by/4.0/legalcode). If you'd like to translate it into other languages, please feel free, so long as you reference this original text.
