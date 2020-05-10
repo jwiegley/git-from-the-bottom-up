@@ -49,7 +49,7 @@ same commit.
 
 * **--author=pattern** — Refers to all commits whose author matches the pattern. The author of a commit is the one who created the changes it represents. For local development this is always the same as the committer, but when patches are being sent by e-mail, the author and the committer usually differ.
 
-* **--no-merges** — Refers to all commits in the range that have only one parent — that is, it ignores all merge commits.
+* **--no-merges** — Refers to all commits in the range that have no more than one parent — that is, it ignores all merge commits.
 
 Most of these options can be mixed-and-matched. Here is an example which shows the following log entries: changes made to the current branch (branched from master), by myself, within the last month, which contain the text “foo”:
 
