@@ -19,7 +19,7 @@ The power of this command is hard to appreciate at first, but it grants you virt
 * Move the base of your branch _onto any other commit in the repository_.
 * Modify a single commit, to amend a change long after the fact.
 
-I recommend reading the man page for `rebase` at this point, as it contains several good examples how the true power of this beast may be unleashed. To give you one last taste of how potent a tool this is, consider the following scenario and what you’d do if one day you wanted to migrate the secondary branch `L` to become the new head of `Z`:
+I recommend reading the main page for `rebase` at this point, as it contains several good examples how the true power of this beast may be unleashed. To give you one last taste of how potent a tool this is, consider the following scenario and what you’d do if one day you wanted to migrate the secondary branch `L` to become the new head of `Z`:
 
 ![Rebasing Multiple Branches Part 1](../images/rebasing-branches-1.png)
 
