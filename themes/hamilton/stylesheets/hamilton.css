@@ -887,7 +887,7 @@ pre > code {
 /* line 259, /app/source-temp/themes/hamilton/stylesheets/_main.scss */
 .content-wrapper {
   margin: 2.8em auto;
-  max-width: 620px;
+  max-width: max(calc(50%), 620px);
   padding: 0 1em; }
   /* line 264, /app/source-temp/themes/hamilton/stylesheets/_main.scss */
   .content-wrapper a {
