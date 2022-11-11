@@ -16,7 +16,7 @@ Before we dive in, there are a few terms which should be mentioned first, since 
 
 * **tag** — A **tag** is also a name for a commit, similar to a _branch_, except that it always names the same commit, and can have its own description text.
 
-* **master** — The mainline of development in most repositories is done on a branch called “**master**”. Although this is a typical default, it is in no way special.
+* **master** — The mainline of development in most repositories is done on a branch called “**master**” or "**main**". Although one of these is typically chosen as the default name by convention, the chosen name and branch themselves are in no way special.
 
 * **HEAD** — **HEAD** is used by your repository to define what is currently checked out:
   * If you checkout a branch, HEAD symbolically refers to that branch, indicating that the branch name should be updated after the next commit operation.
