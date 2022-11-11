@@ -22,6 +22,8 @@ Before we dive in, there are a few terms which should be mentioned first, since 
   * If you checkout a branch, HEAD symbolically refers to that branch, indicating that the branch name should be updated after the next commit operation.
   *  If you checkout a specific commit, HEAD refers to that commit only. This is referred to as a detached _HEAD_, and occurs, for example, if you check out a tag name.
 
+* **remote** — This is a reference to a different copy of the same repository located elsewhere, e.g. on another computer. The **remote** repository may be in a different state to the local copy but should always share at least one common ancestor commit. Local and remote repositories use a common commit to diverge from each other, allowing `git` to enable collaborative distributed work.
+
 The usual flow of events is this: After creating a repository, your work is done in the working tree. Once your work reaches a significant point — the completion of a bug, the end of the working day, a moment when everything compiles — you add your changes successively to the index. Once the index contains everything you intend to commit, you record its content in the repository. Here’s a simple diagram that shows a typical project’s life-cycle:
 
 ![Project Lifecycle](images/lifecycle.png)
