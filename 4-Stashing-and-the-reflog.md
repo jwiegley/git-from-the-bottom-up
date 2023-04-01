@@ -65,7 +65,7 @@ $ cat <<EOF > /usr/local/bin/git-snapshot
 #!/bin/sh
 git stash && git stash apply
 EOF
-$ chmod +x $_
+$ chmod +x /usr/local/bin/git-snapshot
 $ git-snapshot
 ```
 
