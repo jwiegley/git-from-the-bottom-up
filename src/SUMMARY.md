@@ -1,7 +1,7 @@
 # Git From The Ground Up
 
-[Introduction](README.md)
+[Introduction](..\README.md)
 
 # Repository
 
-- [Directory Content Tracking](1-directory-content-tracking.md)
+- [Directory Content Tracking](..\1-directory-content-tracking.md)
