@@ -29,7 +29,7 @@ Reading this output takes a little getting used to, but essentially it’s no di
 
 * The branch we’re on experienced its first divergence at commit `A` (also known as commit `D~3`, and even `Z~4` if you feel so inclined). The syntax `commit^` is used to refer to the parent of a commit, while `commit~3` refers to its third parent, or great-grandparent.
 * Reading from bottom to top, the first column (the plus signs) shows a divergent branch named `Z` with four commits: `W`, `X`, `Y` and `Z`.
-* The second column (the asterisks) show the commits which happened on the current branch, namely three commits: `B`, `C` and `D`.
+* The second column (the asterisks) shows the commits which happened on the current branch, namely three commits: `B`, `C` and `D`.
 * The top of the output, separated from the bottom by a dividing line, identifies the branches displayed, which column their commits are labelled by, and the character used for the labeling.
 
 The action we’d like to perform is to bring the working branch `Z` back up to speed with the main branch, `D`. In other words, we want to incorporate the work from `B`, `C`, and `D` into `Z`.
