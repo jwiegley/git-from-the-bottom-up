@@ -32,6 +32,6 @@ $ git rebase -i Z
 
 After resolving whatever conflicts emerge, I now have this repository:
 
-![Rebasing Multiple Branches Part 1](../images/rebasing-branches-2.png)
+![Rebasing Multiple Branches Part 2](../images/rebasing-branches-2.png)
 
 As you can see, when it comes to local development, rebasing gives you unlimited control over how your commits appear in the repository.
