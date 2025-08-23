@@ -34,4 +34,6 @@ After resolving whatever conflicts emerge, I now have this repository:
 
 ![Rebasing Multiple Branches Part 2](../images/rebasing-branches-2.png)
 
+> **Note:** In the diagram above, the commit `I'` represents the rebased version of commit `I`. The original `I` was based on commit `C`, and after rebasing onto `Z`, `I'` now contains the same changes but applied on top of `Z` (which comes after `X` in the commit history).
+
 As you can see, when it comes to local development, rebasing gives you unlimited control over how your commits appear in the repository.
