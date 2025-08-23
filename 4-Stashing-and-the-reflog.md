@@ -70,4 +70,3 @@ $ chmod +x /usr/local/bin/git-snapshot
 $ git-snapshot
 ```
 
-There’s no reason you couldn’t run this from a `cron` job every hour, along with running the `reflog expire` command every week or month.
