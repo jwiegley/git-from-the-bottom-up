@@ -1,0 +1,15 @@
+# Jekyll configuration for GitHub Pages
+title: Git from the Bottom Up
+description: A guide to understanding Git from first principles
+
+# Theme settings
+theme: jekyll-theme-hamilton
+
+# Custom CSS
+sass:
+  sass_dir: _sass
+  style: compressed
+
+# Include custom CSS
+plugins:
+  - jekyll-seo-tag
