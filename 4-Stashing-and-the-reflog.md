@@ -32,7 +32,8 @@ This is a good practice because, although the next day you’ll just pull your c
 $ git stash list
 stash@{0}: WIP on master: 5f1bc85...  Initial commit
 
-$ git reflog show stash # same output, plus the stash commit's hash id 2add13e... stash@{0}: WIP on master: 5f1bc85... Initial commit
+$ git reflog show stash # same output, plus the stash commit's hash id
+2add13e... stash@{0}: WIP on master: 5f1bc85... Initial commit
 
 $ git stash apply
 ```

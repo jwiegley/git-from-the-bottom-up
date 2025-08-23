@@ -4,7 +4,7 @@ A hard reset (the `--hard` option) has the potential of being very dangerous, as
 
 There is also another command, `checkout`, which operates just like `reset --hard` if the index is empty. Otherwise, it forces your working tree to match the index.
 
-Now, if you do a hard reset against an earlier commit, it’s the same as first doing a soft reset and then using reset `--hard` to reset your working tree. Thus, the following commands are equivalent:
+Now, if you do a hard reset against an earlier commit, it's the same as first doing a soft reset and then using `reset --hard` to reset your working tree. Thus, the following commands are equivalent:
 
 ```bash
 $ git reset --hard HEAD~3  # Go back in time, throwing away changes
