@@ -3,7 +3,7 @@ title: Git from the Bottom Up
 description: A guide to understanding Git from first principles
 
 # Theme settings
-theme: jekyll-theme-hamilton
+theme: slate
 
 # Custom CSS
 sass:
