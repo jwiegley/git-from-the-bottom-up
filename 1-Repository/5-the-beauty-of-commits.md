@@ -30,3 +30,15 @@ Another joy of the commit-based system is that you can rephrase even the most co
 Here is a picture of how all these pieces fit together:
 
 ![Commits](../images/commits.png)
+
+## Understanding the Tree Structure
+
+To clarify the diagram above and answer common questions about trees:
+
+* **Trees can contain both blobs and other trees** — A tree object holds references to blobs (files) and to other tree objects (subdirectories). This is why they're called "trees" — they form a hierarchical structure just like a filesystem directory tree.
+
+* **Trees don't inherit connections from commits** — The arrows in the diagram show that commits point to trees, not the other way around. Trees have no knowledge of which commits reference them. The tree structure is entirely determined by the directory structure at the time of the commit.
+
+* **A commit always contains exactly one tree** — This tree represents the root directory of your project at that moment in time. If the root directory is empty except for subdirectories, the tree won't directly reference any blobs, but it will reference other trees (the subdirectories).
+
+* **Why the name "tree"?** — Trees are named after the tree data structure in computer science because they naturally form a hierarchy: a root tree can have multiple child trees (subdirectories) and blobs (files) as leaves. When you traverse from a commit through its tree and into sub-trees, you're walking through a tree structure that mirrors your filesystem.

@@ -1,8 +1,8 @@
 # Blobs are stored in trees
 
-The contents of your files are stored in blobs, but those blobs are pretty featureless. They have no name, no structure — they’re just “blobs”, after all.
+The contents of your files are stored in blobs, but those blobs are pretty featureless. They have no name, no structure — they're just "blobs", after all.
 
-In order for Git to represent the structure and naming of your files, it attaches blobs as leaf nodes within a tree. Now, I can’t discover which tree(s) a blob lives in just by looking at it, since it may have many, many owners. But I know it must live somewhere within the tree held by the commit I just made:
+In order for Git to represent the structure and naming of your files, it attaches blobs as leaf nodes within a tree. A tree in Git is essentially a directory listing — it records blob names (filenames), their modes (file permissions), and their contents (referenced by the blob's hash). Trees can also reference other trees, which is how Git represents subdirectories. Now, I can’t discover which tree(s) a blob lives in just by looking at it, since it may have many, many owners. But I know it must live somewhere within the tree held by the commit I just made:
 
 ```bash
 $ git ls-tree HEAD
