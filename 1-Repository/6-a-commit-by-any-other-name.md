@@ -30,13 +30,13 @@ If commits are the key, how you name commits is the doorway to mastery. There ar
 
 * **name^{tree}** — You can reference just the tree held by a commit, rather than the commit itself.
 
-* **name1..name2** — This and the following aliases indicate _commit ranges_, which are supremely useful with commands like log for seeing what’s happened during a particular span of time. The syntax to the left refers to all the commits reachable from **name2** back to, but not including, **name1**. If either **name1** or **name2** is omitted, HEAD is used in its place.
+* **name1..name2** — This and the following aliases indicate _commit ranges_, which are supremely useful with commands like log for seeing what's happened during a particular span of time. This syntax means "all commits reachable from **name2** minus all commits reachable from **name1**" (set difference). In other words, it shows commits that are in **name2**'s history but not in **name1**'s history. If either **name1** or **name2** is omitted, HEAD is used in its place.
 
-* **name1...name2** — A “triple-dot” range is quite different from the two-dot version above. For commands like log, it refers to all the commits referenced by **name1** or **name2**, but not by both. The result is then a list of all the unique commits in both branches. For commands like `diff`, the range expressed is between **name2** and the common ancestor of **name1** and **name2**. This differs from the `log` case in that changes introduced by **name1** are not shown.
+* **name1...name2** — A "triple-dot" range is quite different from the two-dot version above. For commands like log, it refers to all the commits referenced by **name1** or **name2**, but not by both (symmetric difference). The result is then a list of all the unique commits in both branches. For commands like `diff`, the range expressed is between **name2** and the merge base (common ancestor) of **name1** and **name2**. Note that when multiple merge bases exist, Git will use the most recent one. This differs from the `log` case in that changes introduced by **name1** are not shown.
 
-* **master..** — This usage is equivalent to “`master..HEAD`”. I’m adding it here, even though it’s been implied above, because I use this kind of alias constantly when reviewing changes made to the current branch.
+* **master..** — This usage is equivalent to "`master..HEAD`". I'm adding it here, even though it's been implied above, because I use this kind of alias constantly when reviewing changes made to the current branch. For example, if you're on a topic branch, this shows all commits on your branch that aren't on master.
 
-* **..master** — This, too, is especially useful after you’ve done a `fetch` and you want to see what changes have occurred since your last `rebase` or `merge`.
+* **..master** — This is equivalent to "`HEAD..master`" and shows commits that are on master but not on your current branch. This is especially useful after you've done a `fetch` (which updates remote-tracking branches like `origin/master`) and you want to see what changes have occurred on the remote master branch since your last `rebase` or `merge`. Note that if you want to see changes from the remote, you'd typically use `..origin/master` rather than `..master`.
 
 * **--since="2 weeks ago"** — Refers to all commits since a certain date.
 
