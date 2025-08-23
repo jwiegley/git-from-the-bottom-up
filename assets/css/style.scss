@@ -1,0 +1,20 @@
+---
+---
+
+@import "{{ site.theme }}";
+
+/* Fix for paragraph indentation issue
+   See: https://github.com/jwiegley/git-from-the-bottom-up/issues/22
+   
+   The default theme incorrectly indents paragraphs after non-paragraph elements.
+   This fix ensures that only paragraphs immediately following other paragraphs
+   are indented, not paragraphs after code blocks or other elements.
+*/
+
+.main-content p {
+    text-indent: 0;
+}
+
+.main-content p + p {
+    text-indent: 1.5em;
+}
