@@ -7,14 +7,20 @@ $ mkdir sample; cd sample
 $ echo 'Hello, world!' > greeting
 ```
 
-Here I’ve created a new filesystem directory named “sample” which contains a file whose contents are prosaically predictable. I haven’t even created a repository yet, but already I can start using some of Git’s commands to understand what it’s going to do. First of all, I’d like to know which hash id Git is going to store my greeting text under:
+Here I've created a new filesystem directory named "sample" which contains a file whose contents are prosaically predictable. I haven't even created a repository yet, but already I can start using some of Git's commands to understand what it's going to do. First of all, I'd like to know which hash id Git is going to store my greeting text under:
 
 ```bash
 $ git hash-object greeting
 af5626b4a114abcb82d63db7c8082c3c4756e51b
 ```
 
-If you run this command on your system, you’ll get the same hash id. Even though we’re creating two different repositories (possibly a world apart, even) our greeting blob in those two repositories will have the same hash id. I could even pull commits from your repository into mine, and Git would realize that we’re tracking the same content — and so would only store one copy of it! Pretty cool.
+**Note:** The `echo` command adds a newline character at the end of the text, so the file actually contains "Hello, world!" followed by a newline (14 bytes total). The exact hash depends on your shell and system configuration:
+- On Unix/Mac with double quotes: `echo "Hello, world!" > greeting` produces hash `af5626b4a114abcb82d63db7c8082c3c4756e51b`
+- With single quotes: `echo 'Hello, world!' > greeting` may produce a different hash
+- On Windows, the hash may differ due to CRLF line endings or shell behavior
+- To ensure consistency across platforms, use: `printf "Hello, world!\n" > greeting`
+
+If you run this command on your system with the same file contents (including the newline), you'll get the same hash id. Even though we're creating two different repositories (possibly a world apart, even) our greeting blob in those two repositories will have the same hash id. I could even pull commits from your repository into mine, and Git would realize that we're tracking the same content — and so would only store one copy of it! Pretty cool.
 The next step is to initialize a new repository and commit the file into it. I’m going to do this all in one step right now, but then come back and do it again in stages so you can see what’s going on underneath:
 
 ```bash
