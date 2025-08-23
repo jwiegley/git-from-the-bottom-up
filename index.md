@@ -22,13 +22,17 @@ Before we dive in, there are a few terms which should be mentioned first, since 
 
 * **working tree** — A **working tree** is any directory on your filesystem which has a _repository_ associated with it (typically indicated by the presence of a sub-directory within it named `.git`). It includes all the files and sub-directories in that directory.
 
-* **commit** — A **commit** is a snapshot of your working tree at some point in time. The state of HEAD (see below) at the time your commit is made becomes that commit’s parent. This is what creates the notion of a “revision history”.
+* **commit** — A **commit** is a snapshot of your working tree at some point in time. The state of HEAD (see below) at the time your commit is made becomes that commit's parent. This is what creates the notion of a "revision history".
 
-* **branch** — A **branch** is just a name for a commit (and much more will be said about commits in a moment), also called a reference. It’s the parentage of a commit which defines its history, and thus the typical notion of a “branch of development”.
+* **blob** — A **blob** is a Git object that stores the contents of a file. It's called a "blob" because it's just raw data without any structure or metadata about filenames or permissions. The same content will always produce the same blob, regardless of its filename or location.
+
+* **branch** — A **branch** is just a name for a commit (and much more will be said about commits in a moment), also called a reference. It's the parentage of a commit which defines its history, and thus the typical notion of a "branch of development".
 
 * **tag** — A **tag** is also a name for a commit, similar to a _branch_, except that it always names the same commit, and can have its own description text.
 
-* **main** — The mainline of development in most repositories is done on a branch called “**main**” or "**master**". Although one of these is typically chosen as the default name by convention, the chosen name and branch themselves are in no way special.
+* **tree** — A **tree** is a Git object that represents a directory. It contains references to blobs (which represent files) and to other trees (which represent subdirectories). Trees are called "trees" because they naturally form a hierarchical tree structure: a tree can contain references to other trees as branches, and blobs as leaves. Every commit contains exactly one tree representing the state of the working directory at that point in time.
+
+* **main** — The mainline of development in most repositories is done on a branch called "**main**" or "**master**". Although one of these is typically chosen as the default name by convention, the chosen name and branch themselves are in no way special.
 
 * **HEAD** — **HEAD** is used by your repository to define what is currently checked out:
   * If you checkout a branch, HEAD symbolically refers to that branch, indicating that the branch name should be updated after the next commit operation.
