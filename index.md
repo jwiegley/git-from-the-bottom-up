@@ -2,7 +2,19 @@
 
 Welcome to the world of Git. I hope this document will help to advance your understanding of this powerful content tracking system, and reveal a bit of the simplicity underlying it — however dizzying its array of options may seem from the outside.
 
-Before we dive in, there are a few terms which should be mentioned first, since they’ll appear repeatedly throughout this text:
+## Git Version Compatibility
+
+This guide was originally written in 2014 and covers Git fundamentals that have remained stable across versions. The core concepts explained here — repositories, commits, branches, the index, and basic operations — work with any Git version from 1.7 onwards. While Git has added many features since then (such as worktrees, sparse checkouts, and improved performance), the foundational knowledge in this guide remains relevant for understanding Git at any version.
+
+For those learning Git today, some notable improvements since this guide was written include:
+* **Better defaults**: Modern Git has more user-friendly default behaviors
+* **Enhanced performance**: Operations on large repositories are significantly faster
+* **Improved collaboration features**: Better support for pull requests and code review workflows
+* **Advanced features**: Worktrees, partial clones, and sparse checkouts for complex workflows
+
+However, the mental model and core commands described in this guide remain the foundation you need to understand Git effectively.
+
+Before we dive in, there are a few terms which should be mentioned first, since they'll appear repeatedly throughout this text:
 
 * **repository** — A **repository** is a collection of _commits_, each of which is an archive of what the project's _working tree_ looked like at a past date, whether on your machine or someone else's. It also defines HEAD (see below), which identifies the branch or commit the current working tree stemmed from. Lastly, it contains a set of _branches_ and _tags_, to identify certain commits by name.
 
